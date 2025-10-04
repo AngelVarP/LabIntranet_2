@@ -34,17 +34,28 @@
     <main class="main-content">
       <header class="topbar">
         <h1>Gestión de Usuarios</h1>
-        <button class="btn-primary" id="btn-add-user">+ Nuevo Usuario</button>
+        <div class="actions">
+          <input type="text" id="search-user" placeholder="Buscar usuario...">
+          <select id="filter-role">
+            <option value="todos">Todos los roles</option>
+            <option value="Administrador">Administrador</option>
+            <option value="Profesor">Profesor</option>
+            <option value="Delegado">Delegado</option>
+            <option value="Alumno">Alumno</option>
+          </select>
+          <button class="btn-primary" id="btn-add-user">+ Nuevo Usuario</button>
+        </div>
       </header>
 
       <section class="table-section">
-        <table class="table">
+        <table class="table" id="user-table">
           <thead>
             <tr>
               <th>ID</th>
               <th>Nombre</th>
               <th>Correo</th>
               <th>Rol</th>
+              <th>Origen</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -54,7 +65,9 @@
               <td>Ana Torres</td>
               <td>ana.torres@lab.com</td>
               <td>Administrador</td>
+              <td>Base de datos</td>
               <td>
+                <button class="btn-reset">🔑</button>
                 <button class="btn-edit">✏️</button>
                 <button class="btn-delete">🗑️</button>
               </td>
@@ -64,7 +77,9 @@
               <td>José Pérez</td>
               <td>jose.perez@lab.com</td>
               <td>Profesor</td>
+              <td>Manual</td>
               <td>
+                <button class="btn-reset">🔑</button>
                 <button class="btn-edit">✏️</button>
                 <button class="btn-delete">🗑️</button>
               </td>
@@ -95,6 +110,12 @@
           <option value="Profesor">Profesor</option>
           <option value="Delegado">Delegado</option>
           <option value="Alumno">Alumno</option>
+        </select>
+
+        <label>Origen:</label>
+        <select id="user-source" required>
+          <option value="Base de datos">Base de datos</option>
+          <option value="Manual">Manual</option>
         </select>
 
         <div class="modal-actions">

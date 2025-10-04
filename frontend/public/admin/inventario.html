@@ -15,7 +15,7 @@
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <img src="../../assets/img/logo.png" alt="Logo del Laboratorio" class="logo">
+        <img src="/frontend/assets/img/logo.png" alt="Logo del Laboratorio" class="logo">
         <h2>Admin</h2>
       </div>
       <nav>
@@ -42,6 +42,7 @@
             <option value="Vidriería">Vidriería</option>
             <option value="Equipos">Equipos</option>
           </select>
+          <button class="btn-primary" id="btn-export">⬇️ Exportar</button>
           <button class="btn-primary" id="btn-add-product">+ Agregar producto</button>
         </div>
       </header>
@@ -53,7 +54,10 @@
               <th>ID</th>
               <th>Producto</th>
               <th>Categoría</th>
+              <th>Unidad</th>
+              <th>Ubicación</th>
               <th>Stock</th>
+              <th>Mínimo</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -63,7 +67,10 @@
               <td>P001</td>
               <td>Ácido Clorhídrico</td>
               <td>Reactivos</td>
+              <td>L</td>
+              <td>Almacén Principal</td>
               <td>5</td>
+              <td>10</td>
               <td><span class="stock low">Bajo</span></td>
               <td>
                 <button class="btn-edit">✏️</button>
@@ -74,19 +81,11 @@
               <td>P002</td>
               <td>Matraz Aforado 250ml</td>
               <td>Vidriería</td>
-              <td>20</td>
+              <td>unid</td>
+              <td>Laboratorio Química 1</td>
+              <td>25</td>
+              <td>15</td>
               <td><span class="stock medium">Medio</span></td>
-              <td>
-                <button class="btn-edit">✏️</button>
-                <button class="btn-delete">🗑️</button>
-              </td>
-            </tr>
-            <tr>
-              <td>P003</td>
-              <td>Microscopio</td>
-              <td>Equipos</td>
-              <td>45</td>
-              <td><span class="stock high">Alto</span></td>
               <td>
                 <button class="btn-edit">✏️</button>
                 <button class="btn-delete">🗑️</button>
@@ -104,7 +103,7 @@
       <h2 id="modal-title">Agregar producto</h2>
       <form id="product-form">
         <label>ID:</label>
-        <input type="text" id="product-id" placeholder="P004" required>
+        <input type="text" id="product-id" placeholder="P003" required>
 
         <label>Nombre:</label>
         <input type="text" id="product-name" placeholder="Nombre del producto" required>
@@ -116,8 +115,17 @@
           <option value="Equipos">Equipos</option>
         </select>
 
-        <label>Stock:</label>
+        <label>Unidad de medida:</label>
+        <input type="text" id="product-unit" placeholder="Ej: L, ml, g, unid" required>
+
+        <label>Ubicación:</label>
+        <input type="text" id="product-location" placeholder="Ej: Almacén Principal" required>
+
+        <label>Stock actual:</label>
         <input type="number" id="product-stock" min="0" placeholder="Cantidad disponible" required>
+
+        <label>Stock mínimo:</label>
+        <input type="number" id="product-min" min="0" placeholder="Cantidad mínima" required>
 
         <div class="modal-actions">
           <button type="submit" class="btn-primary">Guardar</button>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panel de Administración | Laboratorio</title>
+  <title>Dashboard | Panel de Administración</title>
 
   <link rel="stylesheet" href="/frontend/assets/css/normalize.css" />
   <link rel="stylesheet" href="/frontend/assets/css/main.css" />
@@ -14,7 +14,7 @@
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <img src="../../assets/img/logo.png" alt="Logo del Laboratorio" class="logo">
+        <img src="/frontend/assets/img/logo.png" alt="Logo del Laboratorio" class="logo">
         <h2>Admin</h2>
       </div>
       <nav>
@@ -33,29 +33,48 @@
     <main class="main-content">
       <header class="topbar">
         <h1>Panel de Administración</h1>
-        <p id="user-info">Bienvenido, <span id="user-role">Admin</span></p>
       </header>
 
+      <!-- ALERTAS -->
+      <section class="alerts">
+        <div class="alert alert-warning" id="alert-stock">⚠️ Hay 3 productos con stock bajo</div>
+        <div class="alert alert-info" id="alert-peticiones">🔔 Tienes 5 peticiones pendientes</div>
+      </section>
+
+      <!-- TARJETAS KPI -->
       <section class="cards">
         <div class="card">
-          <h3>📦 Inventario</h3>
-          <p>25 productos con stock bajo</p>
-          <a href="inventario.html" class="card-link">Ver detalles</a>
+          <h3>Usuarios</h3>
+          <p class="big-number" id="kpi-users">128</p>
         </div>
         <div class="card">
-          <h3>📝 Peticiones</h3>
-          <p>5 solicitudes pendientes</p>
-          <a href="peticiones.html" class="card-link">Revisar ahora</a>
+          <h3>Productos</h3>
+          <p class="big-number" id="kpi-products">345</p>
         </div>
         <div class="card">
-          <h3>📊 Reportes</h3>
-          <p>Generar informes y estadísticas</p>
-          <a href="reportes.html" class="card-link">Ir a reportes</a>
+          <h3>Peticiones Pendientes</h3>
+          <p class="big-number" id="kpi-pending">17</p>
+        </div>
+      </section>
+
+      <!-- ACCESOS RÁPIDOS -->
+      <section class="quick-links">
+        <a href="usuarios.html" class="quick-card">👥 Gestionar Usuarios</a>
+        <a href="inventario.html" class="quick-card">📦 Ver Inventario</a>
+        <a href="peticiones.html" class="quick-card">📝 Revisar Peticiones</a>
+      </section>
+
+      <!-- GRÁFICO RESUMIDO -->
+      <section class="chart-section">
+        <div class="chart-card">
+          <h3>Peticiones por Estado</h3>
+          <canvas id="chart-peticiones"></canvas>
         </div>
       </section>
     </main>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/frontend/assets/js/dashboard.js"></script>
 </body>
 </html>

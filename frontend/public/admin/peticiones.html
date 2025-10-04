@@ -42,6 +42,7 @@
             <option value="Aprobada">Aprobada</option>
             <option value="Rechazada">Rechazada</option>
           </select>
+          <button class="btn-primary" id="btn-export-peticiones">⬇️ Exportar</button>
         </div>
       </header>
 
@@ -52,7 +53,7 @@
               <th>ID</th>
               <th>Usuario</th>
               <th>Producto</th>
-              <th>Cantidad</th>
+              <th>Cantidad Solicitada</th>
               <th>Fecha</th>
               <th>Estado</th>
               <th>Acciones</th>
@@ -63,22 +64,11 @@
               <td>PE001</td>
               <td>Ana Torres</td>
               <td>Ácido Clorhídrico</td>
-              <td>2</td>
+              <td>10</td>
               <td>2025-10-01</td>
               <td><span class="status pendiente">Pendiente</span></td>
               <td>
-                <button class="btn-approve">✔️</button>
-                <button class="btn-reject">❌</button>
-              </td>
-            </tr>
-            <tr>
-              <td>PE002</td>
-              <td>José Pérez</td>
-              <td>Matraz Aforado 250ml</td>
-              <td>5</td>
-              <td>2025-10-02</td>
-              <td><span class="status aprobada">Aprobada</span></td>
-              <td>
+                <button class="btn-detail">👁️</button>
                 <button class="btn-approve">✔️</button>
                 <button class="btn-reject">❌</button>
               </td>
@@ -87,6 +77,37 @@
         </table>
       </section>
     </main>
+  </div>
+
+  <!-- Modal Detalle Petición -->
+  <div class="modal" id="detail-modal">
+    <div class="modal-content">
+      <h2>Detalle de Petición</h2>
+      <p><strong>Usuario:</strong> <span id="detail-user"></span></p>
+      <p><strong>Producto:</strong> <span id="detail-product"></span></p>
+      <p><strong>Cantidad Solicitada:</strong> <span id="detail-qty"></span></p>
+      <p><strong>Comentarios:</strong> <span id="detail-comments"></span></p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="close-detail">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Aprobar/Rechazar -->
+  <div class="modal" id="action-modal">
+    <div class="modal-content">
+      <h2 id="action-title"></h2>
+      <form id="action-form">
+        <label for="approved-qty" id="approved-label">Cantidad a aprobar:</label>
+        <input type="number" id="approved-qty" min="1" required>
+        <label for="admin-comment">Comentario (opcional):</label>
+        <textarea id="admin-comment" rows="3"></textarea>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Confirmar</button>
+          <button type="button" class="btn-secondary" id="close-action">Cancelar</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="/frontend/assets/js/peticiones.js"></script>
