@@ -1,0 +1,128 @@
+/* ==========================
+   VARIABLES GLOBALES
+========================== */
+:root {
+  --color-primario: #33658A;      /* color principal */
+  --color-secundario: #86BBD8;    /* color de acento */
+  --color-fondo: #F9F9F9;         /* fondo general */
+  --color-texto: #2F4858;         /* texto principal */
+  --color-boton: #F6AE2D;         /* botones destacados */
+  --color-peligro: #F26419;       /* alertas o errores */
+  --font-base: 'Poppins', sans-serif;
+  --font-size-base: 16px;
+}
+
+/* ==========================
+   RESET BASE
+========================== */
+html {
+  font-size: var(--font-size-base);
+  box-sizing: border-box;
+}
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-base);
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  line-height: 1.5;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+h1, h2, h3, h4 {
+  margin: 0 0 0.5em 0;
+  font-weight: 600;
+}
+
+/* ==========================
+   BOTONES
+========================== */
+.btn {
+  display: inline-block;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-primary {
+  background: var(--color-boton);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--color-secundario);
+}
+
+.btn-danger {
+  background: var(--color-peligro);
+  color: #fff;
+}
+.btn-danger:hover {
+  opacity: 0.9;
+}
+
+/* ==========================
+   FORMULARIOS
+========================== */
+input, select, textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: var(--font-base);
+}
+
+label {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ==========================
+   UTILIDADES
+========================== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.text-center { text-align: center; }
+
+.mt-1 { margin-top: 1rem; }
+.mt-2 { margin-top: 2rem; }
+.mb-1 { margin-bottom: 1rem; }
+.mb-2 { margin-bottom: 2rem; }
+
+.hidden { display: none !important; }
+
+.alert {
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.alert-error {
+  background: #f8d7da;
+  color: #721c24;
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Administración | Laboratorio</title>
+
+  <link rel="stylesheet" href="/frontend/assets/css/normalize.css" />
+  <link rel="stylesheet" href="/frontend/assets/css/main.css" />
+  <link rel="stylesheet" href="/frontend/assets/css/dashboard.css" />
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="../../assets/img/logo.png" alt="Logo del Laboratorio" class="logo">
+        <h2>Admin</h2>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="dashboard.html" class="active">🏠 Dashboard</a></li>
+          <li><a href="usuarios.html">👥 Usuarios</a></li>
+          <li><a href="inventario.html">📦 Inventario</a></li>
+          <li><a href="peticiones.html">📝 Peticiones</a></li>
+          <li><a href="reportes.html">📊 Reportes</a></li>
+          <li><a href="../login.html" class="logout">🚪 Cerrar sesión</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Panel de Administración</h1>
+        <p id="user-info">Bienvenido, <span id="user-role">Admin</span></p>
+      </header>
+
+      <section class="cards">
+        <div class="card">
+          <h3>📦 Inventario</h3>
+          <p>25 productos con stock bajo</p>
+          <a href="inventario.html" class="card-link">Ver detalles</a>
+        </div>
+        <div class="card">
+          <h3>📝 Peticiones</h3>
+          <p>5 solicitudes pendientes</p>
+          <a href="peticiones.html" class="card-link">Revisar ahora</a>
+        </div>
+        <div class="card">
+          <h3>📊 Reportes</h3>
+          <p>Generar informes y estadísticas</p>
+          <a href="reportes.html" class="card-link">Ir a reportes</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/frontend/assets/js/dashboard.js"></script>
+</body>
+</html>

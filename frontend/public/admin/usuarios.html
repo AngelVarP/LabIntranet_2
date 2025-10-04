@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usuarios | Panel de Administración</title>
+
+  <link rel="stylesheet" href="/frontend/assets/css/normalize.css" />
+  <link rel="stylesheet" href="/frontend/assets/css/main.css" />
+  <link rel="stylesheet" href="/frontend/assets/css/dashboard.css" />
+  <link rel="stylesheet" href="/frontend/assets/css/table.css" />
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="/frontend/assets/img/logo.png" alt="Logo del Laboratorio" class="logo">
+        <h2>Admin</h2>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="dashboard.html">🏠 Dashboard</a></li>
+          <li><a href="usuarios.html" class="active">👥 Usuarios</a></li>
+          <li><a href="inventario.html">📦 Inventario</a></li>
+          <li><a href="peticiones.html">📝 Peticiones</a></li>
+          <li><a href="reportes.html">📊 Reportes</a></li>
+          <li><a href="../login.html" class="logout">🚪 Cerrar sesión</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Gestión de Usuarios</h1>
+        <button class="btn-primary" id="btn-add-user">+ Nuevo Usuario</button>
+      </header>
+
+      <section class="table-section">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="user-table-body">
+            <tr>
+              <td>U001</td>
+              <td>Ana Torres</td>
+              <td>ana.torres@lab.com</td>
+              <td>Administrador</td>
+              <td>
+                <button class="btn-edit">✏️</button>
+                <button class="btn-delete">🗑️</button>
+              </td>
+            </tr>
+            <tr>
+              <td>U002</td>
+              <td>José Pérez</td>
+              <td>jose.perez@lab.com</td>
+              <td>Profesor</td>
+              <td>
+                <button class="btn-edit">✏️</button>
+                <button class="btn-delete">🗑️</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal para agregar/editar -->
+  <div class="modal" id="user-modal">
+    <div class="modal-content">
+      <h2 id="modal-title">Agregar Usuario</h2>
+      <form id="user-form">
+        <label>Código:</label>
+        <input type="text" id="user-id" placeholder="U003" required>
+
+        <label>Nombre completo:</label>
+        <input type="text" id="user-name" placeholder="Nombre completo" required>
+
+        <label>Correo:</label>
+        <input type="email" id="user-email" placeholder="correo@lab.com" required>
+
+        <label>Rol:</label>
+        <select id="user-role" required>
+          <option value="Administrador">Administrador</option>
+          <option value="Profesor">Profesor</option>
+          <option value="Delegado">Delegado</option>
+          <option value="Alumno">Alumno</option>
+        </select>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Guardar</button>
+          <button type="button" class="btn-secondary" id="btn-close-modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/frontend/assets/js/usuarios.js"></script>
+</body>
+</html>

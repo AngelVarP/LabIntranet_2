@@ -1,0 +1,109 @@
+/* ===== Layout general ===== */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background: #0F2027;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  background: #111c2d;
+  color: white;
+  width: 230px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  text-align: center;
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header .logo {
+  max-width: 60px;
+  margin-bottom: 10px;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar nav ul li a {
+  display: block;
+  padding: 12px 20px;
+  color: #ddd;
+  transition: background 0.3s, color 0.3s;
+}
+.sidebar nav ul li a.active,
+.sidebar nav ul li a:hover {
+  background: #203A43;
+  color: #fff;
+}
+
+.logout {
+  background: #c0392b;
+  margin-top: auto;
+}
+.logout:hover { background: #e74c3c; }
+
+/* ===== Main content ===== */
+.main-content {
+  flex: 1;
+  padding: 20px;
+  color: #f1f1f1;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #203A43;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card h3 {
+  margin: 0;
+  color: #F6AE2D;
+}
+
+.card p {
+  font-size: 0.95rem;
+  color: #ccc;
+}
+
+.card-link {
+  color: #86BBD8;
+  font-weight: 500;
+  text-align: right;
+}
+.card-link:hover { text-decoration: underline; }
+
+/* === LOGO PREMIUM DASHBOARD === */
+.sidebar-header img.logo {
+  max-width: 140px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 8px rgba(246,174,45,0.6));
+  transition: transform 0.3s ease;
+}
+
+.sidebar-header img.logo:hover {
+  transform: scale(1.08);
+}

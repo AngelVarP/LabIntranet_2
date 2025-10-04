@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peticiones | Panel de Administración</title>
+
+  <link rel="stylesheet" href="/frontend/assets/css/normalize.css" />
+  <link rel="stylesheet" href="/frontend/assets/css/main.css" />
+  <link rel="stylesheet" href="/frontend/assets/css/dashboard.css" />
+  <link rel="stylesheet" href="/frontend/assets/css/table.css" />
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="/frontend/assets/img/logo.png" alt="Logo del Laboratorio" class="logo">
+        <h2>Admin</h2>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="dashboard.html">🏠 Dashboard</a></li>
+          <li><a href="usuarios.html">👥 Usuarios</a></li>
+          <li><a href="inventario.html">📦 Inventario</a></li>
+          <li><a href="peticiones.html" class="active">📝 Peticiones</a></li>
+          <li><a href="reportes.html">📊 Reportes</a></li>
+          <li><a href="../login.html" class="logout">🚪 Cerrar sesión</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Peticiones</h1>
+        <div class="actions">
+          <input type="text" id="search-peticion" placeholder="Buscar por usuario o producto...">
+          <select id="filter-status">
+            <option value="todos">Todos los estados</option>
+            <option value="Pendiente">Pendiente</option>
+            <option value="Aprobada">Aprobada</option>
+            <option value="Rechazada">Rechazada</option>
+          </select>
+        </div>
+      </header>
+
+      <section class="table-section">
+        <table class="table" id="peticiones-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PE001</td>
+              <td>Ana Torres</td>
+              <td>Ácido Clorhídrico</td>
+              <td>2</td>
+              <td>2025-10-01</td>
+              <td><span class="status pendiente">Pendiente</span></td>
+              <td>
+                <button class="btn-approve">✔️</button>
+                <button class="btn-reject">❌</button>
+              </td>
+            </tr>
+            <tr>
+              <td>PE002</td>
+              <td>José Pérez</td>
+              <td>Matraz Aforado 250ml</td>
+              <td>5</td>
+              <td>2025-10-02</td>
+              <td><span class="status aprobada">Aprobada</span></td>
+              <td>
+                <button class="btn-approve">✔️</button>
+                <button class="btn-reject">❌</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script src="/frontend/assets/js/peticiones.js"></script>
+</body>
+</html>

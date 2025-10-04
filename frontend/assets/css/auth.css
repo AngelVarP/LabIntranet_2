@@ -1,0 +1,136 @@
+/* ===== Fondo oscuro con degradado ===== */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
+}
+
+/* ===== Caja con efecto vidrio oscuro ===== */
+.auth-box {
+  position: relative; /* necesario para halo */
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 380px;
+  padding: 50px 35px 40px 35px; /* padding ajustado para logo grande */
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 0 30px rgba(0,0,0,0.4);
+}
+
+/* ===== LOGO GRANDE Y PROTAGONISTA ===== */
+.auth-box img.logo {
+  display: block;
+  margin: 0 auto 20px auto;
+  max-width: 200px;         /* tamaño grande dentro del cuadro */
+  height: auto;
+  filter: drop-shadow(0 0 15px rgba(246,174,45,0.6));
+  transition: transform 0.3s ease;
+  animation: fadeInLogo 1s ease-out;
+}
+
+.auth-box img.logo:hover {
+  transform: scale(1.08);
+}
+
+/* Halo detrás del logo */
+.auth-box::before {
+  content: "";
+  position: absolute;
+  top: 35px; 
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(246,174,45,0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+@keyframes fadeInLogo {
+  0% {opacity: 0; transform: scale(0.8);}
+  100% {opacity: 1; transform: scale(1);}
+}
+
+/* ===== Títulos ===== */
+.auth-box h1 {
+  font-size: 1.9rem;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: #aaa;
+  margin-bottom: 25px;
+}
+
+/* ===== Inputs ===== */
+.input-group {
+  position: relative;
+  margin-bottom: 18px;
+}
+.input-group .icon {
+  width: 20px; height: 20px;
+  position: absolute;
+  top: 50%; left: 12px;
+  transform: translateY(-50%);
+  fill: #aaa;
+}
+.input-group input {
+  width: 100%;
+  padding: 10px 12px 10px 40px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-size: 0.95rem;
+}
+.input-group input:focus {
+  outline: none;
+  border-color: #86BBD8;
+  box-shadow: 0 0 5px rgba(134,187,216,0.4);
+}
+
+/* ===== Botón ===== */
+.btn-primary.large {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  background: #F6AE2D;
+  color: #fff;
+  font-size: 1rem;
+  transition: background 0.3s, transform 0.2s;
+}
+.btn-primary.large:hover {
+  background: #ffbf47;
+  transform: translateY(-2px);
+}
+.btn-primary.large:active { transform: translateY(1px); }
+
+.forgot-link {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #ddd;
+}
+.forgot-link:hover { text-decoration: underline; }
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  .auth-box { 
+    padding: 40px 20px 30px 20px;
+  }
+  .auth-box img.logo {
+    max-width: 160px; /* se reduce en móviles */
+  }
+  .auth-box::before {
+    width: 180px;
+    height: 180px;
+    top: 25px;
+  }
+}
