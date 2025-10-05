@@ -27,7 +27,7 @@
 .auth-box img.logo {
   display: block;
   margin: 0 auto 20px auto;
-  max-width: 200px;         /* tamaño grande dentro del cuadro */
+  max-width: 300px;         /* tamaño grande dentro del cuadro */
   height: auto;
   filter: drop-shadow(0 0 15px rgba(246,174,45,0.6));
   transition: transform 0.3s ease;
