@@ -1,0 +1,35 @@
+/* Este archivo es para estilos específicos de la interfaz del profesor. */
+
+/* Ejemplo: Cambiar el color de fondo del menú o los botones para diferenciar del admin */
+#sidebar {
+    /* Usar un color secundario para el profesor para diferenciarlo del admin */
+    background-color: #337ab7; /* Un azul diferente, por ejemplo */
+}
+
+#sidebar a.active {
+    background-color: #1e568f;
+}
+
+/* Estilos específicos para la sección de "Crear Práctica" */
+.form-practica label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.form-practica input[type="text"], 
+.form-practica textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Estilos para el listado dinámico de materiales en la práctica */
+#materiales-list {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: #f9f9f9;
+}

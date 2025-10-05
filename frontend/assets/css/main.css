@@ -126,3 +126,16 @@ label {
   background: #f8d7da;
   color: #721c24;
 }
+
+/* PROFESOR PARTE FONDO DE BLANCO*/
+
+.form-panel .form-control {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Opcional: si el texto placeholder se ve oscuro */
+.form-panel .form-control::placeholder {
+    color: #aaa;
+}

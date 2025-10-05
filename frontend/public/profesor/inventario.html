@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profesor - Inventario Disponible</title>
+    <link rel="stylesheet" href="../../assets/css/normalize.css">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/table.css">
+    <link rel="stylesheet" href="../../assets/css/profesor.css"> 
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/img/logo.png" alt="Intranet Logo" class="logo">
+                <h3>Profesor</h3>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="practicas.html">Prácticas</a></li>
+                    <li><a href="inventario.html" class="active">Inventario</a></li>
+                    <li><a href="solicitudes.html">Peticiones</a></li>
+                    <li><a href="reportes.html">Reportes</a></li>
+
+                    <li><a href="../../public/login.html" class="logout">Cerrar Sesión</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <h1>Inventario de Materiales Disponible</h1>
+            <p>Consulta el stock actual antes de generar una solicitud.</p>
+            
+            <div class="topbar">
+                <div class="actions">
+                    <input type="text" id="buscar-producto" placeholder="Buscar producto..." style="width: 300px;"> 
+                    <select id="filtrar-categoria" style="width: 200px;"> 
+                        <option value="">Todas las categorías</option>
+                        </select>
+                </div>
+            </div>
+
+            <table id="tabla-inventario" class="table"> 
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Unidad</th>
+                        <th>Ubicación</th>
+                        <th>Stock</th>
+                        <th>Mínimo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="8" style="text-align: center;">Cargando inventario...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/inventario-profesor.js"></script>
+</body>
+</html>

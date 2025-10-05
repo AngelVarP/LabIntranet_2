@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profesor - Descarga de Reportes</title>
+    <link rel="stylesheet" href="../../assets/css/normalize.css">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/reportes.css"> 
+    <link rel="stylesheet" href="../../assets/css/profesor.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            
+            <div class="sidebar-header">
+                <img src="../../assets/img/logo.png" alt="Intranet Logo" class="logo">
+                <h3>Profesor</h3>
+            </div>
+            
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="practicas.html">Prácticas</a></li>
+                    <li><a href="inventario.html">Inventario</a></li>
+                    <li><a href="solicitudes.html">Peticiones</a></li>
+                    <li><a href="reportes.html" class="active">Reportes</a></li>
+                    
+                    <li><a href="../../public/login.html" class="logout">Cerrar Sesión</a></li>
+                </ul>
+            </nav>
+            
+            </div>
+        <div class="main-content">
+            <h1>Generar Reportes de Uso de Materiales</h1>
+            <p>Selecciona una práctica y/o un rango de fechas para generar y descargar un reporte de consumo.</p>
+
+            <form id="form-generar-reporte" class="form-panel">
+                
+                <div class="form-group">
+                    <label for="select-practica">Filtrar por Práctica:</label>
+                    <select id="select-practica" class="form-control"> 
+                        <option value="all">-- Todas mis Prácticas --</option>
+                        </select>
+                </div>
+
+                <hr>
+                <h2>Filtrar por Rango de Fechas (Opcional)</h2>
+                <div class="date-range" style="display: flex; gap: 20px;"> 
+                    <div class="form-group" style="flex: 1;">
+                        <label for="input-fecha-inicio">Desde:</label>
+                        <input type="date" id="input-fecha-inicio" class="form-control"> 
+                    </div>
+                    
+                    <div class="form-group" style="flex: 1;">
+                        <label for="input-fecha-fin">Hasta:</label>
+                        <input type="date" id="input-fecha-fin" class="form-control"> 
+                    </div>
+                </div>
+
+                <hr style="margin: 25px 0;">
+                <button type="submit" class="btn-primary">
+                    <span id="loader" style="display:none; margin-right: 5px;">Cargando...</span>
+                    <span id="btn-text">Descargar Reporte (CSV/PDF)</span>
+                </button>
+            </form>
+
+            <div id="report-message" class="alert-info" style="margin-top: 20px; display:none;">
+                El reporte se está generando. La descarga comenzará automáticamente.
+            </div>
+
+        </div>
+    </div>
+
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/reportes-profesor.js"></script>
+</body>
+</html>
