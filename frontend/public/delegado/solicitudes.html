@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delegado - Solicitudes</title>
+    <link rel="stylesheet" href="../../assets/css/normalize.css">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/table.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/img/logo.png" alt="Logo" class="logo">
+                <h3>Delegado</h3>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="practicas.html">Mis Prácticas</a></li>
+                    <li><a href="solicitudes.html" class="active">Solicitudes</a></li>
+                    <li><a href="grupo.html">Mi Grupo</a></li>
+                    <li><a href="../../public/login.html" class="logout">Cerrar Sesión</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <h1>Solicitudes de Insumos</h1>
+
+            <!-- Formulario para nueva solicitud -->
+            <section class="card">
+                <h2>Crear nueva solicitud</h2>
+                <form id="form-peticion" class="form-inline">
+                    <input type="text" name="insumo" placeholder="Nombre del insumo" required>
+                    <input type="number" name="cantidad" min="1" placeholder="Cantidad" required>
+                    <button type="submit" class="btn-primary">Enviar Solicitud</button>
+                </form>
+                <div id="mensaje-peticion" class="alert"></div>
+            </section>
+
+            <!-- Listado de solicitudes -->
+            <section class="card">
+                <h2>Mis solicitudes</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Insumo</th>
+                            <th>Cantidad</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-peticiones">
+                        <tr><td colspan="4" style="text-align:center;">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </div>
+
+    <script src="../../assets/js/delegado.js"></script>
+</body>
+</html>

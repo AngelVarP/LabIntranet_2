@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alumno - Mis Solicitudes</title>
+    <title>Alumno - Mis Prácticas</title>
     <link rel="stylesheet" href="../../assets/css/normalize.css">
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/dashboard.css">
-    <link rel="stylesheet" href="../../assets/css/alumno.css">
     <link rel="stylesheet" href="../../assets/css/table.css">
+    <link rel="stylesheet" href="../../assets/css/delegado.css">
 </head>
 <body>
 
@@ -21,41 +21,34 @@
             <nav>
                 <ul>
                     <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="practicas.html">Mis Prácticas</a></li>
-                    <li><a href="solicitudes.html" class="active">Solicitudes</a></li>
+                    <li><a href="practicas.html" class="active">Mis Prácticas</a></li>
+                    <li><a href="solicitudes.html">Solicitudes</a></li>
+                    <li><a href="grupo.html">Mi Grupo</a></li>
                     <li><a href="../../public/login.html" class="logout">Cerrar Sesión</a></li>
                 </ul>
             </nav>
         </div>
 
         <div class="main-content">
-            <h1>Mis Solicitudes</h1>
+            <h1>Mis Prácticas</h1>
 
             <div class="topbar">
-                <div class="actions">
-                    <input type="text" id="buscar-solicitud" placeholder="Buscar por práctica o ID..." style="width: 300px;">
-                    <select id="filtrar-estado" style="width: 180px;"> 
-                        <option value="">Todos los Estados</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Aprobada">Aprobada</option>
-                        <option value="Rechazada">Rechazada</option>
-                    </select>
-                </div>
+                <input type="text" id="buscar-practica" placeholder="Buscar práctica..." style="width: 300px;">
             </div>
 
-            <table id="tabla-solicitudes" class="table">
+            <table id="tabla-practicas" class="table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Práctica</th>
-                        <th>Fecha Uso</th>
+                        <th>Título</th>
+                        <th>Fecha de Entrega</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td colspan="5" style="text-align: center;">Cargando historial de peticiones...</td>
+                        <td colspan="4" style="text-align: center;">Cargando prácticas...</td>
                     </tr>
                 </tbody>
             </table>
@@ -63,6 +56,6 @@
     </div>
     
     <script src="../../assets/js/main.js"></script>
-    <script src="../../assets/js/solicitudes-alumno.js"></script> 
+    <script src="../../assets/js/practicas-alumno.js"></script> 
 </body>
 </html>
