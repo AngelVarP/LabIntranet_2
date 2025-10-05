@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumno - Mis Solicitudes</title>
+    <link rel="stylesheet" href="../../assets/css/normalize.css">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/alumno.css">
+    <link rel="stylesheet" href="../../assets/css/table.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/img/logoLab.png" alt="Intranet Logo" class="logo">
+                <h3>Alumno</h3>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="practicas.html">Mis Prácticas</a></li>
+                    <li><a href="solicitudes.html" class="active">Solicitudes</a></li>
+                    <li><a href="../../public/login.html" class="logout">Cerrar Sesión</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <h1>Mis Solicitudes</h1>
+
+            <div class="topbar">
+                <div class="actions">
+                    <input type="text" id="buscar-solicitud" placeholder="Buscar por práctica o ID..." style="width: 300px;">
+                    <select id="filtrar-estado" style="width: 180px;"> 
+                        <option value="">Todos los Estados</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Aprobada">Aprobada</option>
+                        <option value="Rechazada">Rechazada</option>
+                    </select>
+                </div>
+            </div>
+
+            <table id="tabla-solicitudes" class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Práctica</th>
+                        <th>Fecha Uso</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" style="text-align: center;">Cargando historial de peticiones...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/solicitudes-alumno.js"></script> 
+</body>
+</html>

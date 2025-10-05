@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumno - Panel Principal</title>
+    <link rel="stylesheet" href="../../assets/css/normalize.css">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/alumno.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/img/logoLab.png" alt="Intranet Logo" class="logo">
+                <h3>Alumno</h3>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                    <li><a href="practicas.html">Mis Prácticas</a></li>
+                    <li><a href="solicitudes.html">Solicitudes</a></li>
+                    <li><a href="../../public/login.html" class="logout">Cerrar Sesión</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <h1>Panel del Alumno</h1>
+
+            <div class="alerts">
+                <div class="alert alert-info">
+                    Tienes 1 práctica pendiente de entrega.
+                </div>
+                <div class="alert alert-warning">
+                    Tienes 3 solicitudes pendientes por revisar.
+                </div>
+            </div>
+
+            <div class="cards">
+                <div class="card">
+                    <h3>Prácticas Asignadas</h3>
+                    <p class="big-number">8</p>
+                </div>
+                <div class="card">
+                    <h3>Prácticas Completadas</h3>
+                    <p class="big-number">5</p>
+                </div>
+                <div class="card">
+                    <h3>Solicitudes Realizadas</h3>
+                    <p class="big-number">4</p>
+                </div>
+            </div>
+
+            <div class="quick-links">
+                <a href="practicas.html" class="quick-card">
+                    Ver Mis Prácticas
+                </a>
+                <a href="solicitudes.html" class="quick-card">
+                    Nueva Solicitud
+                </a>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-card">
+                    <h3>Estado de Mis Prácticas</h3>
+                    <canvas id="practicas-chart"></canvas>
+                    <div id="chart-legend" style="text-align: center; margin-top: 15px;">
+                        <!-- Aquí va el legend del gráfico -->
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/dashboard.js"></script> 
+</body>
+</html>
