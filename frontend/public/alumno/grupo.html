@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Grupo | Alumno</title>
+
+  <link rel="stylesheet" href="../../assets/css/normalize.css" />
+  <link rel="stylesheet" href="../../assets/css/main.css" />
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+  <link rel="stylesheet" href="../../assets/css/table.css" />
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="../../assets/img/logoLab.png" alt="Logo del Laboratorio" class="logo">
+        <h2>Alumno</h2>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="dashboard.html">🏠 Dashboard</a></li>
+          <li><a href="practicas.html">🔬 Prácticas</a></li>
+          <li><a href="grupo.html">👥 Mi Grupo</a></li>
+          <li><a href="solicitudes.html">📝 Solicitudes</a></li>
+          <li><a href="../login.html" class="logout">🚪 Cerrar sesión</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Mi Grupo</h1>
+      </header>
+
+      <section class="group-section">
+        <div id="info-grupo">
+          <p><strong>Grupo:</strong> <span id="grupo-nombre">Cargando...</span></p>
+          <p><strong>Delegado:</strong> <span id="grupo-delegado">Cargando...</span></p>
+        </div>
+
+        <h2>Integrantes</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-integrantes">
+            <tr><td colspan="2">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Grupo | Alumno</title>
+
+  <link rel="stylesheet" href="../../assets/css/normalize.css" />
+  <link rel="stylesheet" href="../../assets/css/main.css" />
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+  <link rel="stylesheet" href="../../assets/css/table.css" />
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="../../assets/img/logoLab.png" alt="Logo del Laboratorio" class="logo">
+        <h2>Alumno</h2>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="dashboard.html">🏠 Dashboard</a></li>
+          <li><a href="practicas.html">🔬 Prácticas</a></li>
+          <li><a href="grupo.html">👥 Mi Grupo</a></li>
+          <li><a href="solicitudes.html">📝 Solicitudes</a></li>
+          <li><a href="../login.html" class="logout">🚪 Cerrar sesión</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Mi Grupo</h1>
+      </header>
+
+      <section class="group-section">
+        <div id="info-grupo">
+          <p><strong>Grupo:</strong> <span id="grupo-nombre">Cargando...</span></p>
+          <p><strong>Delegado:</strong> <span id="grupo-delegado">Cargando...</span></p>
+        </div>
+
+        <h2>Integrantes</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-integrantes">
+            <tr><td colspan="2">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const API_BASE = "/LabIntranet_2/backend/api";
+    const TOKEN = localStorage.getItem("token");
+
+    async function cargarGrupo() {
+      const nombre = document.getElementById("grupo-nombre");
+      const delegado = document.getElementById("grupo-delegado");
+      const tabla = document.getElementById("tabla-integrantes");
+
+      try {
+        const res = await fetch(`${API_BASE}/grupos/mi_grupo.php`, {
+          headers: { "Authorization": `Bearer ${TOKEN}` }
+        });
+        const data = await res.json();
+
+        if (!data || !data.id) {
+          nombre.textContent = "No asignado";
+          delegado.textContent = "-";
+          tabla.innerHTML = "<tr><td colspan='2'>No hay integrantes</td></tr>";
+          return;
+        }
+
+        nombre.textContent = data.nombre || "Sin nombre";
+        delegado.textContent = data.delegado || "Sin delegado";
+
+        if (Array.isArray(data.integrantes) && data.integrantes.length) {
+          tabla.innerHTML = "";
+          data.integrantes.forEach(m => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${m.codigo}</td><td>${m.nombre}</td>`;
+            tabla.appendChild(tr);
+          });
+        } else {
+          tabla.innerHTML = "<tr><td colspan='2'>No hay integrantes</td></tr>";
+        }
+      } catch (err) {
+        console.error("Error al cargar grupo:", err);
+        nombre.textContent = "Error";
+        delegado.textContent = "Error";
+        tabla.innerHTML = "<tr><td colspan='2'>Error al cargar</td></tr>";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", cargarGrupo);
+  </script>
+
+
+</body>
+</html>

@@ -23,9 +23,7 @@
                     <li><a href="dashboard.html">Dashboard</a></li>
                     <li><a href="practicas.html">Prácticas</a></li>
                     <li><a href="inventario.html" class="active">Inventario</a></li>
-                    <li><a href="solicitudes.html">Peticiones</a></li>
                     <li><a href="reportes.html">Reportes</a></li>
-
                     <li><a href="../../public/login.html" class="logout">Cerrar Sesión</a></li>
                 </ul>
             </nav>
@@ -33,14 +31,14 @@
 
         <div class="main-content">
             <h1>Inventario de Materiales Disponible</h1>
-            <p>Consulta el stock actual antes de generar una solicitud.</p>
+            <p>Consulta el stock actual antes de generar una práctica.</p>
             
             <div class="topbar">
                 <div class="actions">
                     <input type="text" id="buscar-producto" placeholder="Buscar producto..." style="width: 300px;"> 
                     <select id="filtrar-categoria" style="width: 200px;"> 
                         <option value="">Todas las categorías</option>
-                        </select>
+                    </select>
                 </div>
             </div>
 
@@ -51,22 +49,76 @@
                         <th>Producto</th>
                         <th>Categoría</th>
                         <th>Unidad</th>
-                        <th>Ubicación</th>
                         <th>Stock</th>
-                        <th>Mínimo</th>
-                        <th>Estado</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td colspan="8" style="text-align: center;">Cargando inventario...</td>
+                        <td colspan="5" style="text-align: center;">Cargando inventario...</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <script src="../../assets/js/main.js"></script>
-    <script src="../../assets/js/inventario-profesor.js"></script>
+    <script>
+    const API = "/LabIntranet_2/backend/api";
+    const TOKEN = localStorage.getItem("token");
+    const tabla = document.querySelector("#tabla-inventario tbody");
+    const buscar = document.getElementById("buscar-producto");
+    const filtro = document.getElementById("filtrar-categoria");
+
+    let productos = [];
+    let categorias = [];
+
+    async function cargarCategorias(){
+        const r = await fetch(`${API}/categorias/listar.php`,{headers:{Authorization:`Bearer ${TOKEN}`}});
+        const data = await r.json();
+        categorias = data;
+        filtro.innerHTML = '<option value="">Todas las categorías</option>';
+        data.forEach(c=>{
+            const opt = document.createElement("option");
+            opt.value = c.id;
+            opt.textContent = c.nombre;
+            filtro.appendChild(opt);
+        });
+    }
+
+    async function cargarProductos(){
+        tabla.innerHTML = '<tr><td colspan="5" style="text-align:center;">Cargando...</td></tr>';
+        const r = await fetch(`${API}/productos/listar.php`,{headers:{Authorization:`Bearer ${TOKEN}`}});
+        const data = await r.json();
+        productos = data;
+        renderTabla();
+    }
+
+    function renderTabla(){
+        tabla.innerHTML = "";
+        const txt = buscar.value.toLowerCase();
+        const cat = filtro.value;
+        productos
+            .filter(p => (p.nombre.toLowerCase().includes(txt) || (p.descripcion||"").toLowerCase().includes(txt)))
+            .filter(p => cat==="" || p.categoria_id==cat || p.categoria==cat)
+            .forEach(p=>{
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${p.id}</td>
+                    <td>${p.nombre}</td>
+                    <td>${p.categoria || "-"}</td>
+                    <td>${p.unidad}</td>
+                    <td>${p.stock}</td>`;
+                tabla.appendChild(tr);
+            });
+        if(tabla.innerHTML===""){
+            tabla.innerHTML='<tr><td colspan="5" style="text-align:center;">No hay productos</td></tr>';
+        }
+    }
+
+    buscar.addEventListener("input", renderTabla);
+    filtro.addEventListener("change", renderTabla);
+
+    cargarCategorias();
+    cargarProductos();
+    </script>
 </body>
 </html>

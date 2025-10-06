@@ -1,62 +1,79 @@
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Reportes-profesor.js cargado. Listo para generar reportes.');
+document.addEventListener("DOMContentLoaded", () => {
+  const API_BASE = "/LabIntranet_2/backend/api";
+  const TOKEN = localStorage.getItem("token");
+  const selectPractica = document.getElementById("select-practica");
+  const formReporte = document.getElementById("form-generar-reporte");
+  const loader = document.getElementById("loader");
+  const btnText = document.getElementById("btn-text");
+  const msg = document.getElementById("report-message");
 
-    const formReporte = document.getElementById('form-generar-reporte');
-    const selectPractica = document.getElementById('select-practica');
-    const reportMessage = document.getElementById('report-message');
-    const btnText = document.getElementById('btn-text');
-    const loader = document.getElementById('loader');
+  // ===== CARGAR PRÁCTICAS =====
+  async function cargarPracticas() {
+    try {
+      const res = await fetch(`${API_BASE}/reportes/practicas.php`, {
+        headers: { Authorization: `Bearer ${TOKEN}` }
+      });
+      const data = await res.json();
+      data.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = `${p.nombre} (${p.grupos_asignados} grupos)`;
+        selectPractica.appendChild(opt);
+      });
+    } catch (err) {
+      console.error("Error cargando prácticas:", err);
+    }
+  }
 
-    // --- Lógica para cargar el listado de prácticas en el select ---
-    function cargarListaPracticas() {
-        // **TODO:** Llamada al servidor (fetch) para obtener la lista de prácticas del profesor
-        
-        // Simulación de datos:
-        const practicas = [
-            { id: 'P001', titulo: 'Termodinámica Básica' },
-            { id: 'P002', titulo: 'Síntesis de Polímeros' },
-            { id: 'P003', titulo: 'Manejo de Reactivos II' }
-        ];
+  // ===== GENERAR REPORTE =====
+  formReporte.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    loader.style.display = "inline-block";
+    btnText.textContent = "Generando...";
+    msg.style.display = "none";
 
-        // Aseguramos que la opción de "Todas" se mantenga y añadimos las dinámicas
-        practicas.forEach(p => {
-            const option = document.createElement('option');
-            option.value = p.id;
-            option.textContent = p.titulo;
-            selectPractica.appendChild(option);
-        });
+    const practica = selectPractica.value;
+    const inicio = document.getElementById("input-fecha-inicio").value;
+    const fin = document.getElementById("input-fecha-fin").value;
+
+    try {
+      const url = new URL(`${API_BASE}/reportes/uso_materiales.php`, window.location.origin);
+      if(practica) url.searchParams.set("practica", practica);
+      if(inicio) url.searchParams.set("inicio", inicio);
+      if(fin) url.searchParams.set("fin", fin);
+
+      const res = await fetch(url, { headers:{Authorization:`Bearer ${TOKEN}`}});
+      const data = await res.json();
+
+      if(!Array.isArray(data) || !data.length){
+        alert("No hay datos para el reporte.");
+        loader.style.display = "none";
+        btnText.textContent = "Descargar Reporte (CSV/PDF)";
+        return;
+      }
+
+      // Generar CSV
+      let csv = "Producto,Cantidad Usada\n";
+      data.forEach(d => {
+        csv += `"${d.producto}","${d.total_usado}"\n`;
+      });
+      const blob = new Blob([csv], {type:"text/csv"});
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "reporte_materiales.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      msg.style.display = "block";
+    } catch (err) {
+      console.error(err);
+      alert("Error generando reporte");
     }
 
-    // --- Lógica para generar y descargar reportes ---
-    if (formReporte) {
-        formReporte.addEventListener('submit', (e) => {
-            e.preventDefault();
+    loader.style.display = "none";
+    btnText.textContent = "Descargar Reporte (CSV/PDF)";
+  });
 
-            // Deshabilitar formulario y mostrar "cargando"
-            formReporte.querySelector('button[type="submit"]').disabled = true;
-            btnText.textContent = 'Generando...';
-            reportMessage.style.display = 'block';
-
-            const practicaId = selectPractica.value;
-            const fechaInicio = document.getElementById('input-fecha-inicio').value;
-            const fechaFin = document.getElementById('input-fecha-fin').value;
-
-            console.log(`Solicitando reporte para Práctica ID: ${practicaId}, Desde: ${fechaInicio}, Hasta: ${fechaFin}`);
-
-            // SIMULACIÓN DE RETARDO Y DESCARGA (se ejecuta después de 2 segundos)
-            setTimeout(() => {
-                
-                // Revertir el estado del botón
-                formReporte.querySelector('button[type="submit"]').disabled = false;
-                btnText.textContent = 'Descargar Reporte (CSV/PDF)';
-                reportMessage.style.display = 'none';
-
-                alert('Descarga de reporte simulada completada. Revisa tus descargas.');
-
-            }, 2000); // Retardo de 2 segundos
-        });
-    }
-    
-    // --- Inicialización ---
-    cargarListaPracticas();
+  cargarPracticas();
 });

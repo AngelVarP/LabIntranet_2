@@ -1,133 +1,145 @@
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Practicas.js cargado. Listo para gestionar prácticas y sus materiales.');
+/* practicas-profesor.js
+ * Gestión de prácticas para Profesor
+ */
+document.addEventListener("DOMContentLoaded", () => {
+  const API_BASE = "/LabIntranet_2/backend/api";
+  const TOKEN = localStorage.getItem("token");
 
-    // --- Elementos del DOM ---
-    const formPractica = document.getElementById('form-crear-practica');
-    const btnAgregarMaterial = document.getElementById('btn-agregar-material');
-    const materialesContainer = document.getElementById('materiales-container');
-    const tablaPracticasBody = document.getElementById('tabla-practicas').getElementsByTagName('tbody')[0];
-    const inputBuscar = document.getElementById('buscar-practica');
+  const formCrear = document.getElementById("form-crear-practica");
+  const tabla = document.getElementById("tabla-practicas").querySelector("tbody");
+  const buscar = document.getElementById("buscar-practica");
+  const btnAgregarMat = document.getElementById("btn-agregar-material");
+  const matContainer = document.getElementById("materiales-container");
 
-    let practicasData = []; 
+  let practicas = [];
 
-    // --- Estilos oscuros que faltan en form-control (si es necesario) ---
-    // NOTA: Estos estilos deberían estar en main.css/profesor.css, pero los ponemos aquí 
-    // en el HTML para forzar el color oscuro en los inputs dinámicos.
-    const darkInputStyle = "background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2);";
+  // ==== CARGAR PRÁCTICAS EXISTENTES ====
+  async function cargarPracticas() {
+    tabla.innerHTML = `<tr><td colspan="5">Cargando prácticas...</td></tr>`;
+    try {
+      const res = await fetch(`${API_BASE}/practicas/listar.php`, {
+        headers: { Authorization: `Bearer ${TOKEN}` }
+      });
+      const data = await res.json();
+      if (!Array.isArray(data)) {
+        tabla.innerHTML = `<tr><td colspan="5">Error al cargar</td></tr>`;
+        return;
+      }
+      practicas = data;
+      renderTabla();
+    } catch (e) {
+      console.error("Error al cargar prácticas:", e);
+      tabla.innerHTML = `<tr><td colspan="5">Error de conexión</td></tr>`;
+    }
+  }
 
-
-    // --- 1. Lógica para Agregar Materiales Dinámicamente ---
-    if (btnAgregarMaterial) {
-        btnAgregarMaterial.addEventListener('click', () => {
-            const nuevoMaterialHTML = `
-                <div class="material-item form-group" style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 10px;">
-                    <div style="flex: 3;">
-                        <label>Nombre del material</label>
-                        <input type="text" placeholder="Vaso de precipitado" required class="form-control" style="margin-bottom: 0; ${darkInputStyle}"> 
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Cantidad</label>
-                        <input type="number" placeholder="1" min="1" required class="form-control" style="margin-bottom: 0; ${darkInputStyle}">
-                    </div>
-                    <button type="button" class="btn btn-danger btn-quitar-material" style="padding: 8px 10px; height: 38px;">X</button>
-                </div>
-            `;
-            materialesContainer.insertAdjacentHTML('beforeend', nuevoMaterialHTML);
-        });
+  // ==== RENDER TABLA ====
+  function renderTabla() {
+    tabla.innerHTML = "";
+    if (!practicas.length) {
+      tabla.innerHTML = `<tr><td colspan="5">No hay prácticas</td></tr>`;
+      return;
     }
 
-    // --- Lógica para Quitar Materiales Dinámicamente ---
-    materialesContainer.addEventListener('click', (e) => {
-        if (e.target.classList.contains('btn-quitar-material')) {
-            e.target.closest('.material-item').remove();
+    const texto = buscar.value.toLowerCase();
+    practicas
+      .filter(p => p.nombre.toLowerCase().includes(texto) || (p.descripcion||"").toLowerCase().includes(texto))
+      .forEach(p => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.id}</td>
+          <td>${p.nombre}</td>
+          <td>${p.fecha || "-"}</td>
+          <td>${p.estado || "Publicado"}</td>
+          <td>
+            <button class="btn-delete" data-id="${p.id}">🗑️</button>
+          </td>
+        `;
+        tabla.appendChild(tr);
+      });
+  }
+
+  buscar.addEventListener("input", renderTabla);
+
+  tabla.addEventListener("click", async (e) => {
+    if (e.target.matches(".btn-delete")) {
+      const id = e.target.dataset.id;
+      if (!confirm("¿Eliminar esta práctica?")) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/practicas/eliminar.php`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${TOKEN}`
+          },
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json();
+        if (data?.success) {
+          alert("Práctica eliminada");
+          cargarPracticas();
+        } else {
+          alert(data?.message || "Error al eliminar");
         }
-    });
-
-    // ... (El resto de la función cargarPracticas, obtenerEstadoHTML, pintarTabla, aplicarFiltros, etc., sigue igual) ...
-
-    function cargarPracticas() {
-        // Simulación de datos:
-        practicasData = [
-            { id: 'P001', titulo: 'Termodinámica Básica', fecha: '2025-05-10', estado: 'Publicada' },
-            { id: 'P002', titulo: 'Síntesis de Polímeros', fecha: '2025-05-15', estado: 'Borrador' },
-            { id: 'P003', titulo: 'Manejo de Reactivos II', fecha: '2025-05-20', estado: 'Archivada' }
-        ];
-
-        aplicarFiltros(); 
+      } catch (err) {
+        console.error(err);
+        alert("Error de conexión");
+      }
     }
+  });
 
-    function obtenerEstadoHTML(estado) {
-        // Simulación de clases de estado basadas en el patrón de table.css
-        switch (estado.toLowerCase()) {
-            case 'publicada':
-                return '<span class="status aprobada">PUBLICADA</span>'; // Usamos aprobada como similar a publicada
-            case 'borrador':
-                return '<span class="status pendiente">BORRADOR</span>'; // Usamos pendiente para algo "en espera"
-            case 'archivada':
-                return '<span class="status rechazada">ARCHIVADA</span>'; // Usamos rechazada como similar a archivada/no activa
-            default:
-                return '<span>-</span>';
-        }
+  // ==== AGREGAR MATERIAL AL FORM ====
+  btnAgregarMat.addEventListener("click", () => {
+    const div = document.createElement("div");
+    div.className = "material-item";
+    div.innerHTML = `
+      <input type="number" class="mat-producto" placeholder="ID producto" style="width:100px" required>
+      <input type="number" class="mat-cantidad" placeholder="Cantidad" style="width:100px" min="1" required>
+      <button type="button" class="btn-remove-mat">❌</button>
+    `;
+    div.querySelector(".btn-remove-mat").addEventListener("click", () => div.remove());
+    matContainer.appendChild(div);
+  });
+
+  // ==== CREAR PRÁCTICA ====
+  formCrear.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const nombre = document.getElementById("titulo").value.trim();
+    const descripcion = document.getElementById("descripcion").value.trim();
+
+    const materiales = [...matContainer.querySelectorAll(".material-item")].map(m => ({
+      producto_id: parseInt(m.querySelector(".mat-producto").value || 0),
+      cantidad: parseInt(m.querySelector(".mat-cantidad").value || 0)
+    })).filter(m => m.producto_id && m.cantidad);
+
+    if (!nombre) return alert("Ingresa un título");
+    if (!descripcion) return alert("Ingresa una descripción");
+
+    try {
+      const res = await fetch(`${API_BASE}/practicas/crear.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${TOKEN}`
+        },
+        body: JSON.stringify({ nombre, descripcion, materiales })
+      });
+      const data = await res.json();
+      if (data?.success) {
+        alert("Práctica creada correctamente");
+        formCrear.reset();
+        matContainer.innerHTML = "";
+        cargarPracticas();
+      } else {
+        alert(data?.message || "No se pudo crear");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error de conexión");
     }
+  });
 
-    function pintarTabla(productos) {
-        tablaPracticasBody.innerHTML = ''; 
-        if (productos.length === 0) {
-            const fila = tablaPracticasBody.insertRow();
-            fila.insertCell(0).colSpan = 5;
-            fila.cells[0].textContent = 'No se encontraron prácticas con estos criterios.';
-            fila.cells[0].style.textAlign = 'center';
-            return;
-        }
-
-        productos.forEach(practica => {
-            const fila = tablaPracticasBody.insertRow();
-            fila.insertCell(0).textContent = practica.id;
-            fila.insertCell(1).textContent = practica.titulo;
-            fila.insertCell(2).textContent = practica.fecha;
-            fila.insertCell(3).innerHTML = obtenerEstadoHTML(practica.estado); 
-
-            const celdaAcciones = fila.insertCell(4);
-            celdaAcciones.innerHTML = `
-                <button class="btn-edit" onclick="editarPractica('${practica.id}')">✏️</button>
-                <button class="btn-detail" onclick="solicitarInsumos('${practica.id}')">📦</button>
-            `;
-        });
-    }
-
-    function aplicarFiltros() {
-        const textoBusqueda = inputBuscar.value.toLowerCase();
-
-        const resultadosFiltrados = practicasData.filter(practica => {
-            return practica.titulo.toLowerCase().includes(textoBusqueda);
-        });
-
-        pintarTabla(resultadosFiltrados);
-    }
-    
-    // --- Event Listeners y Lógica de Envío ---
-    if (formPractica) {
-        formPractica.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const titulo = document.getElementById('titulo').value;
-            alert(`Práctica "${titulo}" creada con éxito (Simulado).`);
-            formPractica.reset(); 
-            materialesContainer.innerHTML = ''; 
-            cargarPracticas();
-        });
-    }
-
-    inputBuscar.addEventListener('input', aplicarFiltros);
-    cargarPracticas();
+  // ==== INICIO ====
+  cargarPracticas();
 });
-
-// --- Funciones de Acciones (Disponibles globalmente) ---
-function editarPractica(id) {
-    console.log('Función de Editar Práctica ID: ' + id);
-    alert('Función de Editar Práctica ID: ' + id);
-}
-
-function solicitarInsumos(id) {
-    console.log('Redirigiendo a Solicitudes para la Práctica ID: ' + id);
-    alert('Redirigiendo a Solicitudes para la Práctica ID: ' + id);
-}

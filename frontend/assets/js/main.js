@@ -1,34 +1,43 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const loginForm = document.getElementById("login-form");
+  const form = document.getElementById("login-form");
+  if (!form) return;
 
-  if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const code = document.getElementById("code").value.trim().toUpperCase();
-      const password = document.getElementById("password").value.trim();
+  const API_BASE = "/LabIntranet_2/backend/api";
 
-      try {
-        const response = await fetch("/LabIntranet_2/backend/general/login.php", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          body: `code=${encodeURIComponent(code)}&password=${encodeURIComponent(password)}`
-        });
-        const data = await response.json();
-        if (data.success) {
-          alert(`Bienvenido! Rol detectado: ${data.rol}`);
-          sessionStorage.setItem("usuarioRol", data.rol);
-          if (data.rol === "admin") window.location.href = "admin/dashboard.html";
-          else if (data.rol === "profesor") window.location.href = "profesor/dashboard.html";
-          else if (data.rol === "tecnico") window.location.href = "tecnico/dashboard.html";
-          else window.location.href = "estudiante/dashboard.html";
-        } else {
-          alert(data.message || "Código o contraseña incorrectos");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const code = (document.getElementById("code") || document.getElementById("codigo"))?.value || "";
+    const password = (document.getElementById("password") || {}).value || "";
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/login.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // Soporta ambos nombres por si tu input se llama "code"
+        body: JSON.stringify({ codigo: code, code, password }),
+      });
+
+      const data = await res.json();
+
+      if (data?.success && data?.token && data?.user?.rol) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("rol", data.user.rol);
+        alert(`Bienvenido, ${data.user.nombre} (${data.user.rol})`);
+
+        switch (data.user.rol) {
+          case "Administrador": window.location.href = "admin/dashboard.html"; break;
+          case "Profesor":      window.location.href = "profesor/dashboard.html"; break;
+          case "Delegado":      window.location.href = "delegado/dashboard.html"; break;
+          case "Alumno":        window.location.href = "alumno/dashboard.html"; break;
+          default:              window.location.href = "dashboard.html"; break;
         }
-      } catch (error) {
-        alert("Error de conexión con el servidor");
+      } else {
+        alert(data?.message || "Credenciales inválidas");
       }
-    });
-  }
+    } catch (err) {
+      console.error(err);
+      alert("Error de conexión con el servidor");
+    }
+  });
 });

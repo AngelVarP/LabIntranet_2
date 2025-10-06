@@ -1,50 +1,79 @@
-document.addEventListener("DOMContentLoaded", () => {
-  // === Datos de ejemplo (luego vendrán de tu backend)
-  const countUsers = 128;
-  const countProducts = 345;
-  const countPending = 17;
-  const countApproved = 58;
+document.addEventListener("DOMContentLoaded", async () => {
+  const API_BASE = "/LabIntranet_2/backend/api";
+  const TOKEN = localStorage.getItem("token");
 
-  // Insertar datos en las tarjetas
-  document.getElementById("count-users").textContent = countUsers;
-  document.getElementById("count-products").textContent = countProducts;
-  document.getElementById("count-pending").textContent = countPending;
-  document.getElementById("count-approved").textContent = countApproved;
+  const countUsers = document.getElementById("count-users");
+  const countProducts = document.getElementById("count-products");
+  const countPending = document.getElementById("count-pending");
+  const countApproved = document.getElementById("count-approved");
 
-  // === Chart: Consumo Inventario ===
-  const ctxInv = document.getElementById("chart-inventario").getContext("2d");
-  new Chart(ctxInv, {
-    type: "bar",
-    data: {
-      labels: ["Reactivos", "Vidriería", "Equipos", "Otros"],
-      datasets: [{
-        label: "Cantidad utilizada",
-        data: [120, 80, 45, 30],
-        backgroundColor: ["#F6AE2D", "#86BBD8", "#2ecc71", "#e74c3c"]
-      }]
-    },
-    options: { responsive: true, plugins: { legend: { display: false } } }
-  });
+  try {
+    const res = await fetch(`${API_BASE}/reportes/resumen.php`, {
+      headers: { Authorization: `Bearer ${TOKEN}` }
+    });
 
-  // === Chart: Solicitudes por rol ===
-  const ctxRoles = document.getElementById("chart-roles").getContext("2d");
-  new Chart(ctxRoles, {
-    type: "doughnut",
-    data: {
-      labels: ["Profesor", "Delegado", "Alumno"],
-      datasets: [{
-        data: [45, 25, 30],
-        backgroundColor: ["#F6AE2D", "#86BBD8", "#2ecc71"]
-      }]
-    },
-    options: { responsive: true }
-  });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
 
-  // === Botones de exportación (simulados) ===
+    const data = await res.json();
+
+    // === Tarjetas ===
+    countUsers.textContent = data.usuarios ?? 0;
+    countProducts.textContent = data.productos ?? 0;
+    countPending.textContent = data.pendientes ?? 0;
+    countApproved.textContent = data.aprobadas ?? 0;
+
+    // === Chart: Consumo Inventario ===
+    const ctxInv = document.getElementById("chart-inventario").getContext("2d");
+    new Chart(ctxInv, {
+      type: "bar",
+      data: {
+        labels: data.consumo.map(x => x.nombre),
+        datasets: [{
+          label: "Cantidad utilizada",
+          data: data.consumo.map(x => x.total),
+          backgroundColor: ["#F6AE2D", "#86BBD8", "#2ecc71", "#e74c3c", "#3498db", "#9b59b6"]
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    // === Chart: Solicitudes por rol ===
+    const ctxRoles = document.getElementById("chart-roles").getContext("2d");
+    new Chart(ctxRoles, {
+      type: "doughnut",
+      data: {
+        labels: data.porRol.map(x => x.rol),
+        datasets: [{
+          data: data.porRol.map(x => x.total),
+          backgroundColor: ["#F6AE2D", "#86BBD8", "#2ecc71", "#e74c3c"]
+        }]
+      },
+      options: { responsive: true }
+    });
+
+  } catch (err) {
+    console.error("Error al cargar reportes:", err);
+    alert("No se pudieron cargar los datos de reportes.");
+  }
+
+  // === Botones de exportación ===
   document.getElementById("btn-export-pdf").addEventListener("click", () => {
-    alert("Exportación a PDF simulada (aquí se integrará con backend).");
+    window.print(); // imprime la página como PDF
   });
+
   document.getElementById("btn-export-excel").addEventListener("click", () => {
-    alert("Exportación a Excel simulada (aquí se integrará con backend).");
+    let csv = [];
+    csv.push("Usuarios,Productos,Pendientes,Aprobadas");
+    csv.push(`${countUsers.textContent},${countProducts.textContent},${countPending.textContent},${countApproved.textContent}`);
+    const blob = new Blob([csv.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "reportes.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   });
 });
