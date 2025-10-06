@@ -1,61 +1,95 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delegado - Mi Grupo</title>
-    <link rel="stylesheet" href="../../assets/css/normalize.css">
-    <link rel="stylesheet" href="../../assets/css/main.css">
-    <link rel="stylesheet" href="../../assets/css/dashboard.css">
-    <link rel="stylesheet" href="../../assets/css/table.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Grupo | Delegado</title>
+
+  <link rel="stylesheet" href="../../assets/css/normalize.css" />
+  <link rel="stylesheet" href="../../assets/css/main.css" />
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+  <link rel="stylesheet" href="../../assets/css/table.css" />
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <img src="../../assets/img/logoLab.png" alt="Logo" class="logo">
-                <h3>Delegado</h3>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="practicas.html">Mis Prácticas</a></li>
-                    <li><a href="solicitudes.html">Solicitudes</a></li>
-                    <li><a href="grupo.html" class="active">Mi Grupo</a></li>
-                    <li><a href="../../public/login.html" class="logout">Cerrar Sesión</a></li>
-                </ul>
-            </nav>
+  <div class="dashboard-container">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="../../assets/img/logoLab.png" alt="Logo del Laboratorio" class="logo">
+        <h2>Delegado</h2>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="dashboard.html">🏠 Dashboard</a></li>
+          <li><a href="solicitudes.html">📝 Solicitudes</a></li>
+          <li><a href="practicas.html">🔬 Prácticas</a></li>
+          <li><a href="grupo.html" class="active">👥 Mi Grupo</a></li>
+          <li><a href="../login.html" class="logout">🚪 Cerrar sesión</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Mi Grupo</h1>
+      </header>
+
+      <!-- ✅ Bloque para crear grupo si el delegado aún no tiene -->
+      <section class="card" id="crear-grupo" style="display:none;">
+        <h2>Crear Grupo</h2>
+        <form id="form-crear-grupo" method="POST" class="form-inline">
+          <div class="input-group">
+            <label for="nombre-grupo">Nombre del grupo:</label>
+            <input type="text" id="nombre-grupo" name="nombre_grupo" placeholder="Ej: Grupo A - Química I" required>
+          </div>
+          <button type="submit" class="btn-primary">Crear Grupo</button>
+        </form>
+      </section>
+
+      <!-- ✅ Bloque para mostrar información del grupo ya creado -->
+      <section class="card" id="info-grupo" style="display:none;">
+        <h2>Información del Grupo</h2>
+        <p><strong>Nombre:</strong> <span id="nombre-grupo-actual"></span></p>
+        <p><strong>Código:</strong> <span id="codigo-grupo"></span></p>
+        <div class="actions">
+          <button id="btn-agregar-alumnos" class="btn-primary">+ Agregar Alumnos</button>
         </div>
+      </section>
 
-        <!-- Main content -->
-        <div class="main-content">
-            <h1>Mi Grupo</h1>
+      <!-- ✅ Tabla de integrantes -->
+      <section class="table-section" id="alumnos-grupo" style="display:none;">
+        <h2>Integrantes</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-integrantes">
+            <!-- Llenado vía JS -->
+          </tbody>
+        </table>
+      </section>
 
-            <section class="card">
-                <h2>Información del Grupo</h2>
-                <p><strong>Grupo:</strong> <span id="grupo-nombre">Cargando...</span></p>
-                <p><strong>Sección:</strong> <span id="grupo-seccion">Cargando...</span></p>
-                <p><strong>Delegado:</strong> <span id="delegado-nombre">Cargando...</span></p>
-            </section>
-
-            <section class="card">
-                <h2>Alumnos del Grupo</h2>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Nombre</th>
-                            <th>Email</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-alumnos">
-                        <tr><td colspan="3" style="text-align:center;">Cargando...</td></tr>
-                    </tbody>
-                </table>
-            </section>
+      <!-- ✅ Selector para agregar alumnos disponibles -->
+      <section class="card" id="selector-alumnos" style="display:none;">
+        <h2>Agregar Alumnos</h2>
+        <div id="lista-alumnos-disponibles">
+          <!-- Aquí se cargan checkboxes de alumnos disponibles -->
         </div>
-    </div>
-    <script src="../../assets/js/delegado.js"></script>
+        <div class="actions">
+          <button id="btn-confirmar-agregar" class="btn-primary">Agregar seleccionados</button>
+          <button id="btn-cancelar-agregar" class="btn-secondary">Cancelar</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="../../assets/js/delegado.js"></script>
 </body>
 </html>

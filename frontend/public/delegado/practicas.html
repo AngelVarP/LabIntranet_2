@@ -1,61 +1,58 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alumno - Mis Prácticas</title>
-    <link rel="stylesheet" href="../../assets/css/normalize.css">
-    <link rel="stylesheet" href="../../assets/css/main.css">
-    <link rel="stylesheet" href="../../assets/css/dashboard.css">
-    <link rel="stylesheet" href="../../assets/css/table.css">
-    <link rel="stylesheet" href="../../assets/css/delegado.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prácticas | Delegado</title>
+
+  <link rel="stylesheet" href="../../assets/css/normalize.css" />
+  <link rel="stylesheet" href="../../assets/css/main.css" />
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+  <link rel="stylesheet" href="../../assets/css/table.css" />
 </head>
 <body>
+  <div class="dashboard-container">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="../../assets/img/logoLab.png" alt="Logo del Laboratorio" class="logo">
+        <h2>Delegado</h2>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="dashboard.html">🏠 Dashboard</a></li>
+          <li><a href="solicitudes.html">📝 Solicitudes</a></li>
+          <li><a href="practicas.html" class="active">🔬 Prácticas</a></li>
+          <li><a href="grupo.html">👥 Mi Grupo</a></li>
+          <li><a href="../login.html" class="logout">🚪 Cerrar sesión</a></li>
+        </ul>
+      </nav>
+    </aside>
 
-    <div class="dashboard-container">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <img src="../../assets/img/logoLab.png" alt="Intranet Logo" class="logo">
-                <h3>Alumno</h3>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="practicas.html" class="active">Mis Prácticas</a></li>
-                    <li><a href="solicitudes.html">Solicitudes</a></li>
-                    <li><a href="grupo.html">Mi Grupo</a></li>
-                    <li><a href="../../public/login.html" class="logout">Cerrar Sesión</a></li>
-                </ul>
-            </nav>
-        </div>
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Mis Prácticas</h1>
+      </header>
 
-        <div class="main-content">
-            <h1>Mis Prácticas</h1>
+      <section class="table-section">
+        <table class="table" id="practicas-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="practicas-body">
+            <!-- Aquí se llenan las prácticas vía JS -->
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
 
-            <div class="topbar">
-                <input type="text" id="buscar-practica" placeholder="Buscar práctica..." style="width: 300px;">
-            </div>
-
-            <table id="tabla-practicas" class="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Título</th>
-                        <th>Fecha de Entrega</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="4" style="text-align: center;">Cargando prácticas...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    
-    <script src="../../assets/js/main.js"></script>
-    <script src="../../assets/js/practicas-alumno.js"></script> 
+  <script src="../../assets/js/delegado.js"></script>
 </body>
 </html>

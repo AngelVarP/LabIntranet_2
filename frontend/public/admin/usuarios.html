@@ -60,25 +60,13 @@
             </tr>
           </thead>
           <tbody id="user-table-body">
-            <!--
+            <!-- Ejemplo de filas
             <tr>
               <td>U001</td>
               <td>Ana Torres</td>
               <td>ana.torres@lab.com</td>
               <td>Administrador</td>
               <td>Base de datos</td>
-              <td>
-                <button class="btn-reset">🔑</button>
-                <button class="btn-edit">✏️</button>
-                <button class="btn-delete">🗑️</button>
-              </td>
-            </tr>
-            <tr>
-              <td>U002</td>
-              <td>José Pérez</td>
-              <td>jose.perez@lab.com</td>
-              <td>Profesor</td>
-              <td>Manual</td>
               <td>
                 <button class="btn-reset">🔑</button>
                 <button class="btn-edit">✏️</button>
@@ -96,18 +84,19 @@
   <div class="modal" id="user-modal">
     <div class="modal-content">
       <h2 id="modal-title">Agregar Usuario</h2>
-      <form id="user-form">
+      <!-- ✅ AHORA con method POST y atributos name -->
+      <form id="user-form" method="POST">
         <label>Código:</label>
-        <input type="text" id="user-id" placeholder="U003" required>
+        <input type="text" id="user-id" name="user_id" placeholder="U003" required>
 
         <label>Nombre completo:</label>
-        <input type="text" id="user-name" placeholder="Nombre completo" required>
+        <input type="text" id="user-name" name="name" placeholder="Nombre completo" required>
 
         <label>Correo:</label>
-        <input type="email" id="user-email" placeholder="correo@lab.com" required>
+        <input type="email" id="user-email" name="email" placeholder="correo@lab.com" required>
 
         <label>Rol:</label>
-        <select id="user-role" required>
+        <select id="user-role" name="role" required>
           <option value="Administrador">Administrador</option>
           <option value="Profesor">Profesor</option>
           <option value="Delegado">Delegado</option>
@@ -115,7 +104,7 @@
         </select>
 
         <label>Origen:</label>
-        <select id="user-source" required>
+        <select id="user-source" name="source" required>
           <option value="Base de datos">Base de datos</option>
           <option value="Manual">Manual</option>
         </select>
