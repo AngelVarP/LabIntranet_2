@@ -1,77 +1,75 @@
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Practicas.js cargado para el Alumno. Listo para gestionar prácticas.');
+// assets/js/practicas-alumno.js
 
-    // --- Elementos del DOM ---
-    const tablaPracticasBody = document.getElementById('tabla-practicas').getElementsByTagName('tbody')[0];
-    const inputBuscar = document.getElementById('buscar-practica');
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('practicas-alumno.js cargado');
 
-    let practicasData = []; 
+  const API_BASE = "/LabIntranet_2/backend/api";
+  const TOKEN = localStorage.getItem("token");
+  const tablaBody = document.querySelector('#tabla-practicas tbody');
+  const inputBuscar = document.getElementById('buscar-practica');
 
-    // --- Simulación de Datos de Prácticas ---
-    function cargarPracticas() {
-        // Simulación de datos para el alumno:
-        practicasData = [
-            { id: 'P001', titulo: 'Termodinámica Básica', fecha: '2025-05-10', estado: 'Publicada' },
-            { id: 'P002', titulo: 'Síntesis de Polímeros', fecha: '2025-05-15', estado: 'Borrador' },
-            { id: 'P003', titulo: 'Manejo de Reactivos II', fecha: '2025-05-20', estado: 'Archivada' }
-        ];
+  if (!TOKEN) {
+    alert('No tienes sesión iniciada');
+    window.location.href = '../login.html';
+    return;
+  }
 
-        aplicarFiltros(); 
+  let practicas = [];
+
+  async function cargarPracticas() {
+    tablaBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Cargando prácticas...</td></tr>`;
+    try {
+      const res = await fetch(`${API_BASE}/practicas/listar.php`, {
+        headers: { Authorization: `Bearer ${TOKEN}` }
+      });
+      const data = await res.json();
+
+      if (!Array.isArray(data)) {
+        tablaBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Error al cargar prácticas</td></tr>`;
+        return;
+      }
+
+      practicas = data.map(p => ({
+        id: p.id,
+        titulo: p.nombre,
+        fecha: p.fecha || '-',
+        estado: p.estado || 'Publicada'
+      }));
+      renderTable(practicas);
+    } catch (err) {
+      console.error(err);
+      tablaBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Error de conexión</td></tr>`;
     }
+  }
 
-    function obtenerEstadoHTML(estado) {
-        switch (estado.toLowerCase()) {
-            case 'publicada':
-                return '<span class="status aprobada">PUBLICADA</span>';
-            case 'borrador':
-                return '<span class="status pendiente">BORRADOR</span>';
-            case 'archivada':
-                return '<span class="status rechazada">ARCHIVADA</span>';
-            default:
-                return '<span>-</span>';
-        }
+  function renderTable(data) {
+    tablaBody.innerHTML = '';
+    if (!data.length) {
+      tablaBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No hay prácticas</td></tr>`;
+      return;
     }
+    data.forEach(practica => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${practica.id}</td>
+        <td>${practica.titulo}</td>
+        <td>${practica.fecha}</td>
+        <td>${practica.estado}</td>
+        <td><button class="btn-detail" onclick="verDetalles('${practica.id}')">📦</button></td>
+      `;
+      tablaBody.appendChild(tr);
+    });
+  }
 
-    function pintarTabla(practicas) {
-        tablaPracticasBody.innerHTML = ''; 
-        if (practicas.length === 0) {
-            const fila = tablaPracticasBody.insertRow();
-            fila.insertCell(0).colSpan = 5;
-            fila.cells[0].textContent = 'No se encontraron prácticas con estos criterios.';
-            fila.cells[0].style.textAlign = 'center';
-            return;
-        }
+  inputBuscar.addEventListener('input', () => {
+    const term = inputBuscar.value.toLowerCase();
+    const filtradas = practicas.filter(p => p.titulo.toLowerCase().includes(term));
+    renderTable(filtradas);
+  });
 
-        practicas.forEach(practica => {
-            const fila = tablaPracticasBody.insertRow();
-            fila.insertCell(0).textContent = practica.id;
-            fila.insertCell(1).textContent = practica.titulo;
-            fila.insertCell(2).textContent = practica.fecha;
-            fila.insertCell(3).innerHTML = obtenerEstadoHTML(practica.estado); 
-
-            const celdaAcciones = fila.insertCell(4);
-            celdaAcciones.innerHTML = `
-                <button class="btn-detail" onclick="verDetalles('${practica.id}')">📦</button>
-            `;
-        });
-    }
-
-    function aplicarFiltros() {
-        const textoBusqueda = inputBuscar.value.toLowerCase();
-
-        const resultadosFiltrados = practicasData.filter(practica => {
-            return practica.titulo.toLowerCase().includes(textoBusqueda);
-        });
-
-        pintarTabla(resultadosFiltrados);
-    }
-    
-    inputBuscar.addEventListener('input', aplicarFiltros);
-    cargarPracticas();
+  cargarPracticas();
 });
 
-// --- Función para ver detalles de la práctica ---
 function verDetalles(id) {
-    console.log('Viendo detalles de la práctica ID: ' + id);
-    alert('Viendo detalles de la práctica ID: ' + id);
+  alert('Detalles de práctica ID: ' + id);
 }

@@ -4,7 +4,6 @@ $u = require_token();
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Si el usuario es DELEGADO, buscar el grupo donde él es dueño
 if ($u['rol'] === 'Delegado') {
     $sql = "SELECT g.id, g.nombre, u.nombre AS delegado
             FROM grupos g
@@ -14,9 +13,7 @@ if ($u['rol'] === 'Delegado') {
     $stmt->bind_param("i", $u['id']);
     $stmt->execute();
     $grupo = $stmt->get_result()->fetch_assoc();
-
 } else {
-    // Si es ALUMNO, buscar el grupo al que pertenece
     $sql = "SELECT g.id, g.nombre, u.nombre AS delegado
             FROM grupo_alumnos ga
             JOIN grupos g ON g.id = ga.grupo_id
@@ -33,8 +30,7 @@ if (!$grupo) {
     exit;
 }
 
-// Cargar integrantes
-$sql = "SELECT usu.id, usu.codigo, usu.nombre
+$sql = "SELECT usu.id, usu.codigo, usu.nombre, usu.correo
         FROM grupo_alumnos ga
         JOIN usuarios usu ON usu.id = ga.alumno_id
         WHERE ga.grupo_id = ?";
@@ -43,6 +39,6 @@ $stmt->bind_param("i", $grupo['id']);
 $stmt->execute();
 $integrantes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-$grupo['integrantes'] = $integrantes;
+$grupo['miembros'] = $integrantes; // 👈 AHORA el nombre coincide con delegado.js
 
 echo json_encode($grupo);
