@@ -4,29 +4,33 @@ document.addEventListener("DOMContentLoaded", () => {
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const code = document.getElementById("code").value.trim().toUpperCase();
+
+      const code = document.getElementById("code").value.trim();
       const password = document.getElementById("password").value.trim();
+      const rol = document.getElementById("rol").value.trim();
 
       try {
-        const response = await fetch("/LabIntranet_2/backend/general/login.php", {
+        const response = await fetch("http://localhost/LabIntranet_2/Controllers/procesoLogin.php", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          body: `code=${encodeURIComponent(code)}&password=${encodeURIComponent(password)}`
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `code=${encodeURIComponent(code)}&password=${encodeURIComponent(password)}&rol=${encodeURIComponent(rol)}`
         });
+
         const data = await response.json();
+
         if (data.success) {
-          alert(`Bienvenido! Rol detectado: ${data.rol}`);
-          sessionStorage.setItem("usuarioRol", data.rol);
-          if (data.rol === "admin") window.location.href = "admin/dashboard.html";
-          else if (data.rol === "profesor") window.location.href = "profesor/dashboard.html";
-          else if (data.rol === "tecnico") window.location.href = "tecnico/dashboard.html";
-          else window.location.href = "estudiante/dashboard.html";
+          if (data.rol === "Administrador") {
+            window.location.href = "../frontend/public/admin/dashboard.php";
+          } else if (data.rol === "delegado") {
+            window.location.href = "../frontend/public/delegado/dashboard.php";
+          } else if (data.rol === "instructor") {
+            window.location.href = "../frontend/public/instructor/dashboard.php";
+          }
         } else {
-          alert(data.message || "Código o contraseña incorrectos");
+          alert(data.message || "Usuario o contraseña incorrectos");
         }
       } catch (error) {
+        console.error(error);
         alert("Error de conexión con el servidor");
       }
     });
