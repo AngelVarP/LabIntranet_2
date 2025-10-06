@@ -107,13 +107,14 @@
   </main>
 
   <script>
-    // Simulación: secciones cargadas desde el backend
-    const secciones = [
-      { id: 1, nombre: 'Física - A' },
-      { id: 2, nombre: 'Física - B' },
-      { id: 3, nombre: 'Química - C' },
-      { id: 4, nombre: 'Química - D' },
-    ];
+    let secciones = [];
+
+    fetch("http://localhost/LabIntranet_2/controllers/GetSeccion.php")
+      .then(response => response.json())
+      .then(data => {
+        secciones = data;
+      })
+      .catch(error => console.error("Error al cargar secciones:", error));
 
     const rolSelect = document.getElementById('rol');
     const seccionContainer = document.getElementById('seccion-container');
@@ -138,9 +139,9 @@
         const checkbox = document.createElement('input');
         checkbox.type = rol === 'delegado' ? 'checkbox' : 'radio';
         checkbox.name = rol === 'delegado' ? 'id_secciones[]' : 'id_seccion';
-        checkbox.value = s.id;
+        checkbox.value = s.id_seccion;
         item.appendChild(checkbox);
-        item.appendChild(document.createTextNode(s.nombre));
+        item.appendChild(document.createTextNode(s.nombre_completo)); // Muestra nombre + letra
         div.appendChild(item);
       });
 
