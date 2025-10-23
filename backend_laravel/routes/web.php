@@ -26,5 +26,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth','verified'])->group(function () {
     Route::get('/tablon', fn() => Inertia::render('Tablon'))->name('tablon.index');
 });
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/insumos', fn () => Inertia::render('Insumos'))->name('insumos');
+});
+
 
 require __DIR__.'/auth.php';
