@@ -138,14 +138,3 @@ const { createApp } = Vue;
 createApp({ data(){ return { mensaje: 'Hola desde Vue.js' } } }).mount('#app');
 </script>
 ```
-
----
-
-## 👥 Equipo
-**UNI — FIEE — Ingeniería de Software**  
-**Proyecto:** LabIntranet 2.0  
-- Dino Suazo (Líder Backend)  
-- [Agregar integrantes]
-
-## 📄 Licencia
-Uso académico (Construcción de Software I — UNI). No destinado a fines comerciales.
