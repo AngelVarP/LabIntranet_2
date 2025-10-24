@@ -309,3 +309,308 @@ Route::middleware('auth:sanctum')->group(function () {
         return DB::table('laboratorios')->orderBy('nombre')->get(['id','nombre']);
     });
 });
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    // Secciones del profesor (como “origen” para elegir grupo/alumnos)
+    Route::get('profesor/mis-secciones', function (Request $r) {
+        $u = $r->user();
+        // usa profesor_seccion si existe, si no, devolvemos todas por simplicidad
+        if (Schema::hasTable('profesor_seccion')) {
+            return DB::table('profesor_seccion as ps')
+                ->join('secciones as s','s.id','=','ps.seccion_id')
+                ->join('cursos as c','c.id','=','s.curso_id')
+                ->select('s.id as seccion_id','s.nombre as seccion','c.id as curso_id','c.codigo','c.nombre as curso')
+                ->where('ps.profesor_id',$u->id)
+                ->orderBy('c.codigo')->orderBy('s.nombre')->get();
+        }
+        return DB::table('secciones as s')
+            ->join('cursos as c','c.id','=','s.curso_id')
+            ->select('s.id as seccion_id','s.nombre as seccion','c.id as curso_id','c.codigo','c.nombre as curso')
+            ->orderBy('c.codigo')->orderBy('s.nombre')->get();
+    });
+
+    // Grupos de una sección (con delegado actual)
+    Route::get('profesor/secciones/{seccionId}/grupos', function (Request $r, int $seccionId) {
+        $q = DB::table('grupos as g')->where('g.seccion_id',$seccionId);
+        $cols = Schema::getColumnListing('grupos');
+        $hasDelegadoCol = in_array('delegado_usuario_id',$cols);
+        $select = ['g.id','g.nombre','g.seccion_id'];
+        if ($hasDelegadoCol) $select[] = 'g.delegado_usuario_id';
+        return $q->orderBy('g.id')->get($select);
+    });
+
+    // Alumnos del grupo (indicando si es delegado)
+    Route::get('profesor/grupos/{grupoId}/alumnos', function (Request $r, int $grupoId) {
+        if (!Schema::hasTable('alumnos_grupo')) return [];
+        $delegadoId = null;
+        if (Schema::hasColumn('grupos','delegado_usuario_id')) {
+            $delegadoId = DB::table('grupos')->where('id',$grupoId)->value('delegado_usuario_id');
+        }
+        return DB::table('alumnos_grupo as ag')
+            ->join('users as u','u.id','=','ag.alumno_id')
+            ->where('ag.grupo_id',$grupoId)
+            ->orderBy('u.name')
+            ->get([
+                'u.id','u.name','u.email',
+                DB::raw(($delegadoId ? "IF(u.id={$delegadoId},1,0)" : "0")." as es_delegado")
+            ]);
+    });
+
+    // Asignar o cambiar delegado en un grupo
+    Route::post('profesor/grupos/{grupoId}/delegado', function (Request $r, int $grupoId) {
+        $u = $r->user();
+        $data = $r->validate(['alumno_id' => ['required','integer']]);
+
+        // 1) Seguridad: profesor debe dictar la sección del grupo (o ser admin)
+        $grupo = DB::table('grupos')->where('id',$grupoId)->first(['id','seccion_id']);
+        if (!$grupo) abort(404,'Grupo no encontrado');
+
+        if (!$u->hasRole('admin')) {
+            if (Schema::hasTable('profesor_seccion')) {
+                $ok = DB::table('profesor_seccion')
+                    ->where('profesor_id',$u->id)->where('seccion_id',$grupo->seccion_id)->exists();
+                if (!$ok) abort(403,'No dicta esta sección');
+            }
+        }
+
+        // 2) Verificar que alumno pertenece al grupo
+        if (Schema::hasTable('alumnos_grupo')) {
+            $pertenece = DB::table('alumnos_grupo')
+                ->where('grupo_id',$grupoId)->where('alumno_id',$data['alumno_id'])->exists();
+            if (!$pertenece) abort(422,'El alumno no pertenece al grupo');
+        }
+
+        // 3) Cambiar delegado + historial
+        return DB::transaction(function () use ($u,$grupoId,$data) {
+            // revocar historial anterior (si existe campo revocado_por)
+            if (Schema::hasTable('delegado_historial') && Schema::hasColumn('delegado_historial','revocado_por')) {
+                $last = DB::table('delegado_historial')
+                    ->where('grupo_id',$grupoId)->whereNull('revocado_por')
+                    ->orderByDesc('id')->first();
+                if ($last) {
+                    DB::table('delegado_historial')->where('id',$last->id)
+                        ->update(['revocado_por'=>$u->id]);
+                }
+                DB::table('delegado_historial')->insert([
+                    'grupo_id'     => $grupoId,
+                    'alumno_id'    => $data['alumno_id'],
+                    'asignado_por' => $u->id,
+                    'creado_at'    => now(),
+                ]);
+            }
+
+            // set actual
+            if (Schema::hasColumn('grupos','delegado_usuario_id')) {
+                DB::table('grupos')->where('id',$grupoId)
+                    ->update(['delegado_usuario_id'=>$data['alumno_id']]);
+            }
+
+            return ['ok'=>true];
+        });
+    });
+
+    // Revocar delegado (dejar sin delegado)
+    Route::post('profesor/grupos/{grupoId}/delegado/revocar', function (Request $r, int $grupoId) {
+        $u = $r->user();
+        $grupo = DB::table('grupos')->where('id',$grupoId)->first(['id','seccion_id']);
+        if (!$grupo) abort(404);
+
+        if (!$u->hasRole('admin') && Schema::hasTable('profesor_seccion')) {
+            $ok = DB::table('profesor_seccion')
+                ->where('profesor_id',$u->id)->where('seccion_id',$grupo->seccion_id)->exists();
+            if (!$ok) abort(403);
+        }
+
+        return DB::transaction(function () use ($u,$grupoId) {
+            // revocar historial
+            if (Schema::hasTable('delegado_historial') && Schema::hasColumn('delegado_historial','revocado_por')) {
+                $last = DB::table('delegado_historial')
+                    ->where('grupo_id',$grupoId)->whereNull('revocado_por')
+                    ->orderByDesc('id')->first();
+                if ($last) {
+                    DB::table('delegado_historial')->where('id',$last->id)
+                        ->update(['revocado_por'=>$u->id]);
+                }
+            }
+            if (Schema::hasColumn('grupos','delegado_usuario_id')) {
+                DB::table('grupos')->where('id',$grupoId)->update(['delegado_usuario_id'=>null]);
+            }
+            return ['ok'=>true];
+        });
+    });
+        // ==================== PROFESOR: LISTAR SOLICITUDES DE SUS SECCIONES ====================
+    Route::get('profesor/solicitudes', function (Request $r) {
+        $u = $r->user();
+        $perPage = (int) $r->input('per_page', 12);
+
+        // IDs de sección que dicta
+        $seccionIds = [];
+        if (Schema::hasTable('profesor_seccion')) {
+            $seccionIds = DB::table('profesor_seccion')
+                ->where('profesor_id',$u->id)->pluck('seccion_id')->all();
+        }
+
+        // Preferimos la vista si existe
+        if (Schema::hasTable('vw_tablon_laboratorio')) {
+            $q = DB::table('vw_tablon_laboratorio as v');
+            if ($seccionIds) $q->whereIn('v.seccion_id',$seccionIds);
+
+            if ($r->filled('estado')) $q->where('v.estado',$r->estado);
+            if ($r->filled('q')) {
+                $q->where(function($w) use ($r){
+                    $w->where('v.grupo_nombre','like','%'.$r->q.'%')
+                    ->orWhere('v.practica_titulo','like','%'.$r->q.'%')
+                    ->orWhere('v.laboratorio_nombre','like','%'.$r->q.'%');
+                });
+            }
+            if ($r->filled('desde')) $q->whereDate('v.creado_at','>=',$r->desde);
+            if ($r->filled('hasta')) $q->whereDate('v.creado_at','<=',$r->hasta);
+
+            $order = Schema::hasColumn('vw_tablon_laboratorio','actualizado_at') ? 'v.actualizado_at' : 'v.creado_at';
+            return $q->orderByDesc(DB::raw($order))->paginate($perPage)->withQueryString();
+        }
+
+        // Fallback sin la vista
+        $q = DB::table('solicitudes as s')
+            ->leftJoin('practicas as p','p.id','=','s.practica_id')
+            ->leftJoin('secciones as sec','sec.id','=','p.seccion_id')
+            ->leftJoin('cursos as c','c.id','=','sec.curso_id')
+            ->leftJoin('laboratorios as l','l.id','=','s.laboratorio_id')
+            ->leftJoin('grupos as g','g.id','=','s.grupo_id')
+            ->select(
+                's.id', 's.estado', 's.creado_at',
+                DB::raw("COALESCE(p.titulo, p.nombre, CONCAT('Práctica #', p.id)) as practica_titulo"),
+                'l.nombre as laboratorio_nombre',
+                'g.nombre as grupo_nombre',
+                'sec.id as seccion_id', 'c.codigo as curso_codigo', 'c.nombre as curso_nombre'
+            );
+
+        if ($seccionIds) $q->whereIn('sec.id',$seccionIds);
+        if ($r->filled('estado')) $q->where('s.estado',$r->estado);
+        if ($r->filled('q')) {
+            $q->where(function($w) use ($r){
+                $w->where('g.nombre','like','%'.$r->q.'%')
+                ->orWhere('p.titulo','like','%'.$r->q.'%')
+                ->orWhere('p.nombre','like','%'.$r->q.'%')
+                ->orWhere('l.nombre','like','%'.$r->q.'%');
+            });
+        }
+        if ($r->filled('desde') && Schema::hasColumn('solicitudes','creado_at')) $q->whereDate('s.creado_at','>=',$r->desde);
+        if ($r->filled('hasta') && Schema::hasColumn('solicitudes','creado_at')) $q->whereDate('s.creado_at','<=',$r->hasta);
+
+        $order = Schema::hasColumn('solicitudes','actualizado_at') ? 's.actualizado_at'
+                : (Schema::hasColumn('solicitudes','creado_at') ? 's.creado_at' : 's.id');
+        return $q->orderByDesc(DB::raw($order))->paginate($perPage)->withQueryString();
+    });
+
+    // ==================== ALUMNO: MIS SOLICITUDES ====================
+    Route::get('alumno/mis-solicitudes', function (Request $r) {
+        $u = $r->user();
+        $perPage = (int) $r->input('per_page', 12);
+
+        // grupos donde está el alumno
+        $grupoIds = [];
+        if (Schema::hasTable('alumnos_grupo')) {
+            $grupoIds = DB::table('alumnos_grupo')->where('alumno_id',$u->id)->pluck('grupo_id')->all();
+        }
+
+        // preferir vista si existe
+        if (Schema::hasTable('vw_tablon_laboratorio')) {
+            $q = DB::table('vw_tablon_laboratorio as v');
+            if ($grupoIds) $q->whereIn('v.grupo_id',$grupoIds);
+            // además, creadas por el usuario
+            if (Schema::hasColumn('vw_tablon_laboratorio','creado_por')) $q->orWhere('v.creado_por',$u->id);
+
+            if ($r->filled('estado')) $q->where('v.estado',$r->estado);
+            $order = Schema::hasColumn('vw_tablon_laboratorio','actualizado_at') ? 'v.actualizado_at' : 'v.creado_at';
+            return $q->orderByDesc(DB::raw($order))->paginate($perPage)->withQueryString();
+        }
+
+        // fallback
+        $q = DB::table('solicitudes as s')
+            ->leftJoin('practicas as p','p.id','=','s.practica_id')
+            ->leftJoin('laboratorios as l','l.id','=','s.laboratorio_id')
+            ->leftJoin('grupos as g','g.id','=','s.grupo_id')
+            ->select(
+                's.id','s.estado','s.creado_at',
+                DB::raw("COALESCE(p.titulo, p.nombre, CONCAT('Práctica #', p.id)) as practica_titulo"),
+                'l.nombre as laboratorio_nombre','g.nombre as grupo_nombre'
+            );
+
+        $q->where(function($w) use ($u,$grupoIds){
+            if ($grupoIds) $w->whereIn('s.grupo_id',$grupoIds);
+            if (Schema::hasColumn('solicitudes','creado_por')) $w->orWhere('s.creado_por',$u->id);
+            if (Schema::hasColumn('solicitudes','delegado_id')) $w->orWhere('s.delegado_id',$u->id);
+        });
+
+        if ($r->filled('estado')) $q->where('s.estado',$r->estado);
+        $order = Schema::hasColumn('solicitudes','actualizado_at') ? 's.actualizado_at'
+                : (Schema::hasColumn('solicitudes','creado_at') ? 's.creado_at' : 's.id');
+        return $q->orderByDesc(DB::raw($order))->paginate($perPage)->withQueryString();
+    });
+
+    // ==================== REPORTES: RESUMEN Y CSV ====================
+    Route::get('reportes/resumen', function (Request $r) {
+        $solPorEstado = Schema::hasTable('solicitudes')
+            ? DB::table('solicitudes')->select('estado', DB::raw('COUNT(*) as n'))
+                ->groupBy('estado')->pluck('n','estado')
+            : collect();
+
+        $prestPorEstado = Schema::hasTable('prestamos')
+            ? DB::table('prestamos')->select('estado', DB::raw('COUNT(*) as n'))
+                ->groupBy('estado')->pluck('n','estado')
+            : collect();
+
+        return [
+            'solicitudes' => $solPorEstado,
+            'prestamos'   => $prestPorEstado,
+            'totales'     => [
+                'solicitudes' => (Schema::hasTable('solicitudes') ? DB::table('solicitudes')->count() : 0),
+                'prestamos'   => (Schema::hasTable('prestamos') ? DB::table('prestamos')->count() : 0),
+            ]
+        ];
+    });
+
+    // CSV simple de solicitudes (filtros opcionales)
+    Route::get('reportes/solicitudes-csv', function (Request $r) {
+        if (!Schema::hasTable('solicitudes')) abort(404);
+
+        $q = DB::table('solicitudes as s')
+            ->leftJoin('practicas as p','p.id','=','s.practica_id')
+            ->leftJoin('laboratorios as l','l.id','=','s.laboratorio_id')
+            ->leftJoin('grupos as g','g.id','=','s.grupo_id')
+            ->select(
+                's.id','s.estado','s.creado_at',
+                DB::raw("COALESCE(p.titulo,p.nombre) as practica"),
+                'l.nombre as laboratorio','g.nombre as grupo'
+            );
+
+        if ($r->filled('estado')) $q->where('s.estado',$r->estado);
+        if ($r->filled('desde'))  $q->whereDate('s.creado_at','>=',$r->desde);
+        if ($r->filled('hasta'))  $q->whereDate('s.creado_at','<=',$r->hasta);
+
+        $rows = $q->orderByDesc('s.id')->limit(5000)->get();
+
+        $csv = "id,estado,creado_at,practica,laboratorio,grupo\n";
+        foreach ($rows as $row) {
+            $line = [
+                $row->id,
+                $row->estado,
+                $row->creado_at,
+                Str::of($row->practica ?? '')->replace([",","\n"],[" "," "]),
+                Str::of($row->laboratorio ?? '')->replace([",","\n"],[" "," "]),
+                Str::of($row->grupo ?? '')->replace([",","\n"],[" "," "]),
+            ];
+            $csv .= implode(',', $line) . "\n";
+        }
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="solicitudes.csv"',
+        ]);
+    });
+
+    
+
+});

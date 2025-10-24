@@ -2,9 +2,11 @@
 import { computed } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
 
-const page = usePage()
+const page  = usePage()
 const user  = computed(() => page.props?.auth?.user ?? {})
-const roles = computed(() => (page.props?.auth?.user?.roles ?? []).map(r => r.toLowerCase()))
+const roles = computed(() =>
+  (page.props?.auth?.user?.roles ?? []).map(r => r.toLowerCase())
+)
 
 const items = computed(() => {
   const all = [
@@ -18,6 +20,11 @@ const items = computed(() => {
     { label: 'Solicitudes (Profesor)', to: '/profesor/solicitudes', roles: ['profesor','admin'] },
     { label: 'Mis Solicitudes', to: '/alumno/solicitudes', roles: ['alumno','admin'] },
     { label: 'Notificaciones', to: '/notificaciones', roles: ['admin','profesor','tecnico','alumno'] },
+    { label: 'Delegados (Profesor)', to: '/profesor/delegados', roles: ['profesor'] },
+
+    
+    
+
   ]
   return all.filter(it => it.roles.some(r => roles.value.includes(r)))
 })
@@ -30,8 +37,14 @@ const items = computed(() => {
         <div class="font-semibold">
           <span class="text-indigo-700">Lab</span><span class="text-orange-500">Intranet</span>
         </div>
-        <div class="text-sm text-slate-600">
-          {{ user.name ?? user.email }}
+
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-slate-600">{{ user.name || user.email }}</span>
+          <!-- Inertia soporta method="post" para logout -->
+          <Link href="/logout" method="post" as="button"
+                class="rounded border px-3 py-1.5 text-sm hover:bg-slate-50">
+            Salir
+          </Link>
         </div>
       </div>
     </header>

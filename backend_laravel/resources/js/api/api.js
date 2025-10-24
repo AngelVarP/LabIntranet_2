@@ -21,6 +21,11 @@ export const API = {
 
   kardex: '/api/kardex',
 
+  profSolicitudes: '/api/profesor/solicitudes',
+  alumnoMisSolicitudes: '/api/alumno/mis-solicitudes',
+  reportResumen: '/api/reportes/resumen',
+  reportSolCSV: '/api/reportes/solicitudes-csv',
+
   dashResumen: '/api/dashboard/resumen',
   statsHome: '/api/stats/home',
   misSolicitudes: '/api/solicitudes/mias',

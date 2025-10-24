@@ -65,6 +65,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile',  [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile',[ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Profesor: gestión de delegado por sección/grupo
+    Route::get('/profesor/delegados', fn () => inertia('Profesor/Delegados'))
+        ->middleware('role:admin|profesor')
+        ->name('profesor.delegados');
+    Route::get('/profesor/solicitudes', fn () => inertia('Profesor/Solicitudes'))
+        ->middleware('role:admin|profesor')
+        ->name('profesor.solicitudes');
+
+    Route::get('/alumno/solicitudes', fn () => inertia('Alumno/MisSolicitudes'))
+        ->middleware('role:admin|alumno')
+        ->name('alumno.solicitudes');
+
+    Route::get('/reportes', fn () => inertia('Reportes/Index'))
+        ->middleware('role:admin|profesor|tecnico')
+        ->name('reportes.index');
+
+
+
 });
 
 require __DIR__.'/auth.php';
