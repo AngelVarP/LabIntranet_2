@@ -8,102 +8,98 @@ use Illuminate\Support\Facades\Schema;
 
 class DatosMinimosTablonSeeder extends Seeder
 {
-    private function withTimestamps(string $table, array $data): array
-    {
-        // Solo agrega timestamps si la tabla tiene esas columnas
-        if (Schema::hasColumn($table, 'created_at')) {
-            $data['created_at'] = now();
-        }
-        if (Schema::hasColumn($table, 'updated_at')) {
-            $data['updated_at'] = now();
-        }
-        return $data;
-    }
-
     public function run(): void
     {
-        // ===== CURSOS =====
+        $required = [
+            'users','cursos','secciones','laboratorios','laboratorios_turnos',
+            'practicas','grupos','solicitudes','solicitud_estados_historial'
+        ];
+        foreach ($required as $t) {
+            if (!Schema::hasTable($t)) {
+                $this->command?->warn("Saltando: falta tabla '{$t}'.");
+                return;
+            }
+        }
+
+        // Si ya hay solicitudes, no hacemos nada
+        if (DB::table('solicitudes')->exists()) {
+            $this->command?->info('Ya hay solicitudes. NO-OP.');
+            return;
+        }
+
+        $now = now();
+
+        // Usuario delegado (demo) – intenta con alumno@lab.test, si no toma el primero
+        $userId = DB::table('users')->where('email','alumno@lab.test')->value('id')
+                  ?? DB::table('users')->min('id');
+
+        // Curso
         DB::table('cursos')->updateOrInsert(
-            ['codigo' => 'QUI101'],
-            $this->withTimestamps('cursos', [
-                'nombre'  => 'Química I',
-                'periodo' => '2025-I',
-            ])
+            ['codigo'=>'QUI101'],
+            ['nombre'=>'Química I','periodo'=>'2025-I','creado_at'=>$now]
         );
         $cursoId = DB::table('cursos')->where('codigo','QUI101')->value('id');
 
-        // ===== SECCIONES =====
+        // Sección
         DB::table('secciones')->updateOrInsert(
-            ['curso_id' => $cursoId, 'nombre' => 'A'],
-            $this->withTimestamps('secciones', [
-                'turno' => 'Mañana',
-            ])
+            ['curso_id'=>$cursoId,'nombre'=>'A'],
+            []
         );
         $seccionId = DB::table('secciones')
             ->where('curso_id',$cursoId)->where('nombre','A')->value('id');
 
-        // ===== PRACTICAS =====
+        // Laboratorio + turno
+        DB::table('laboratorios')->updateOrInsert(
+            ['codigo'=>'LAB-01'],
+            ['nombre'=>'Lab Química 1','aforo'=>30,'ubicacion'=>'Pabellón Q','creado_at'=>$now]
+        );
+        $labId = DB::table('laboratorios')->where('codigo','LAB-01')->value('id');
+
+        DB::table('laboratorios_turnos')->updateOrInsert(
+            ['laboratorio_id'=>$labId,'nombre'=>'Mañana','hora_inicio'=>'08:00:00','hora_fin'=>'10:00:00'],
+            []
+        );
+        $turnoId = DB::table('laboratorios_turnos')
+            ->where('laboratorio_id',$labId)->where('nombre','Mañana')->value('id');
+
+        // Práctica
         DB::table('practicas')->updateOrInsert(
-            ['seccion_id' => $seccionId, 'titulo' => 'Práctica 1: Volumetría'],
-            $this->withTimestamps('practicas', [
-                'laboratorio_id' => 1,
-            ])
+            ['seccion_id'=>$seccionId,'titulo'=>'Práctica 1: Titulación'],
+            ['descripcion'=>'Demo','fecha'=>today(),'laboratorio_id'=>$labId,'turno_id'=>$turnoId,'habilitada'=>1,'creado_at'=>$now]
         );
         $practicaId = DB::table('practicas')
-            ->where('seccion_id',$seccionId)->where('titulo','Práctica 1: Volumetría')->value('id');
+            ->where('seccion_id',$seccionId)->where('titulo','Práctica 1: Titulación')->value('id');
 
-        // ===== GRUPOS =====
+        // Grupo
         DB::table('grupos')->updateOrInsert(
-            ['seccion_id' => $seccionId, 'nombre' => 'Grupo 1'],
-            $this->withTimestamps('grupos', [])
+            ['seccion_id'=>$seccionId,'nombre'=>'A1'],
+            ['delegado_usuario_id'=>$userId]
         );
-        $grupoId = DB::table('grupos')
-            ->where('seccion_id',$seccionId)->where('nombre','Grupo 1')->value('id');
+        $grupoId = DB::table('grupos')->where('seccion_id',$seccionId)->where('nombre','A1')->value('id');
 
-        // ===== INSUMOS (demo) =====
-        DB::table('insumos')->updateOrInsert(
-            ['codigo' => 'VP-250'],
-            $this->withTimestamps('insumos', [
-                'nombre' => 'Vaso precipitado 250ml',
-                'unidad' => 'u',
-                'stock'  => 20,
-                'minimo' => 5,
-            ])
-        );
-        $vasoId = DB::table('insumos')->where('codigo','VP-250')->value('id');
-
-        DB::table('insumos')->updateOrInsert(
-            ['codigo' => 'HCL-1L'],
-            $this->withTimestamps('insumos', [
-                'nombre' => 'Ácido clorhídrico 1L',
-                'unidad' => 'L',
-                'stock'  => 5,
-                'minimo' => 1,
-            ])
-        );
-        $hclId = DB::table('insumos')->where('codigo','HCL-1L')->value('id');
-
-        // ===== SOLICITUD e ITEMS =====
+        // Solicitud (una fila demo)
         DB::table('solicitudes')->updateOrInsert(
-            ['grupo_id'=>$grupoId,'practica_id'=>$practicaId,'estado'=>'PENDIENTE'],
-            $this->withTimestamps('solicitudes', [
-                'comentario' => 'Pedido inicial demo',
-            ])
+            ['practica_id'=>$practicaId,'grupo_id'=>$grupoId,'estado'=>'PENDIENTE'],
+            [
+                'laboratorio_id'=>$labId,
+                'delegado_id'=>$userId,
+                'prioridad'=>'MEDIA',
+                'observaciones'=>'Pedido demo',
+                'creado_por'=>$userId,
+                'creado_at'=>$now,
+                'actualizado_at'=>$now,
+            ]
         );
         $solId = DB::table('solicitudes')
-            ->where('grupo_id',$grupoId)->where('practica_id',$practicaId)->where('estado','PENDIENTE')->value('id');
+            ->where('practica_id',$practicaId)->where('grupo_id',$grupoId)->where('estado','PENDIENTE')
+            ->value('id');
 
-        DB::table('solicitud_items')->updateOrInsert(
-            ['solicitud_id'=>$solId,'insumo_id'=>$vasoId],
-            $this->withTimestamps('solicitud_items', [
-                'cantidad'=>2,'unidad'=>'u',
-            ])
+        // Historial de estado
+        DB::table('solicitud_estados_historial')->updateOrInsert(
+            ['solicitud_id'=>$solId,'estado'=>'PENDIENTE','usuario_id'=>$userId],
+            ['comentario'=>'Creada por seeder','creado_at'=>$now]
         );
-        DB::table('solicitud_items')->updateOrInsert(
-            ['solicitud_id'=>$solId,'insumo_id'=>$hclId],
-            $this->withTimestamps('solicitud_items', [
-                'cantidad'=>0.5,'unidad'=>'L',
-            ])
-        );
+
+        $this->command?->info("Seed demo OK: solicitud #{$solId}");
     }
 }

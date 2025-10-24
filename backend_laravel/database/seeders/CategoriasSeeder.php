@@ -1,23 +1,23 @@
 <?php
-
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CategoriasSeeder extends Seeder
 {
     public function run(): void
     {
-        $now = now();
-        $base = [
-            ['nombre'=>'Vidriería', 'descripcion'=>null, 'activo'=>1, 'created_at'=>$now, 'updated_at'=>$now],
-            ['nombre'=>'Reactivos', 'descripcion'=>null, 'activo'=>1, 'created_at'=>$now, 'updated_at'=>$now],
-            ['nombre'=>'Equipos',   'descripcion'=>null, 'activo'=>1, 'created_at'=>$now, 'updated_at'=>$now],
-        ];
-        foreach ($base as $c) {
-            $exists = DB::table('categorias')->where('nombre',$c['nombre'])->exists();
-            if (!$exists) DB::table('categorias')->insert($c);
+        if (!Schema::hasTable('categorias_insumo')) {
+            $this->command?->warn("Saltando: falta 'categorias_insumo'.");
+            return;
         }
+
+        foreach (['Vidriería','Reactivos','Material menor'] as $n) {
+            DB::table('categorias_insumo')->updateOrInsert(['nombre'=>$n], []);
+        }
+
+        $this->command?->info('CategoriasSeeder OK');
     }
 }

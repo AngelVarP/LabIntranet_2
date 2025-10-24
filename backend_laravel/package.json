@@ -21,6 +21,7 @@
         "vue": "^3.4.38"
     },
     "dependencies": {
+        "alpinejs": "^3.15.0",
         "pinia": "^3.0.3"
     }
 }

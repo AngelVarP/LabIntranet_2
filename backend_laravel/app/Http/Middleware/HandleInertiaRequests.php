@@ -34,6 +34,14 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'auth' => [
+                'user' => fn () => $request->user()
+                    ? array_merge(
+                        $request->user()->only('id','name','email'),
+                        ['roles' => $request->user()->getRoleNames()] // << comparte roles ['admin','tecnico',...]
+                    )
+                    : null,
+            ],
         ];
     }
 }

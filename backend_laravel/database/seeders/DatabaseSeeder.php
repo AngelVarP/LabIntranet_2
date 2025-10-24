@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             UsersDemoSeeder::class,
             DatosMinimosTablonSeeder::class,
+            CategoriasSeeder::class,
+            InsumosDemoSeeder::class,
             // DatosMinimosTablonSeeder::class // <- lo ejecutas luego si quieres
         ]);
     }

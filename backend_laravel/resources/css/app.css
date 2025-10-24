@@ -1,3 +1,43 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Variables de tema (por si luego ajustas tonos finos) */
+:root{
+  --brand:#2f7dff;         /* brand-500 */
+  --brand-700:#1a51b1;     /* brand-700 */
+  --accent:#ff6d00;        /* accent-500 */
+}
+
+/* Helpers reutilizables */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+  }
+  .btn-accent {
+    @apply btn bg-accent-500 text-white hover:bg-accent-600;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-slate-700 hover:bg-slate-100;
+  }
+
+  .chip {
+    @apply inline-flex items-center rounded px-2 py-0.5 text-xs font-medium;
+  }
+  .chip-ok    { @apply chip bg-emerald-100 text-emerald-700; }
+  .chip-warn  { @apply chip bg-amber-100 text-amber-700; }
+  .chip-info  { @apply chip bg-brand-100 text-brand-700; }
+  .chip-muted { @apply chip bg-slate-200 text-slate-700; }
+    /* Botones rápidos */
+  .btn-primary { @apply rounded bg-indigo-600 px-3 py-2 text-white hover:bg-indigo-700; }
+  .btn-accent  { @apply rounded bg-emerald-600 px-3 py-2 text-white hover:bg-emerald-700; }
+  .btn-ghost   { @apply rounded bg-white px-3 py-2 text-slate-700 hover:bg-slate-100; }
+
+  /* Chips */
+  .chip        { @apply inline-flex items-center rounded px-2 py-0.5 text-xs font-medium; }
+  .chip-muted  { @apply bg-slate-100 text-slate-700; }
+
+}
