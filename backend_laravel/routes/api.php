@@ -439,7 +439,7 @@ Route::middleware('auth:sanctum')->group(function () {
             return ['ok'=>true];
         });
     });
-        // ==================== PROFESOR: LISTAR SOLICITUDES DE SUS SECCIONES ====================
+    // ==================== PROFESOR: LISTAR SOLICITUDES DE SUS SECCIONES ====================
     Route::get('profesor/solicitudes', function (Request $r) {
         $u = $r->user();
         $perPage = (int) $r->input('per_page', 12);
@@ -448,15 +448,15 @@ Route::middleware('auth:sanctum')->group(function () {
         $seccionIds = [];
         if (Schema::hasTable('profesor_seccion')) {
             $seccionIds = DB::table('profesor_seccion')
-                ->where('profesor_id',$u->id)->pluck('seccion_id')->all();
+                ->where('profesor_id', $u->id)->pluck('seccion_id')->all();
         }
 
-        // Preferimos la vista si existe
+        // Usa la vista si existe
         if (Schema::hasTable('vw_tablon_laboratorio')) {
             $q = DB::table('vw_tablon_laboratorio as v');
-            if ($seccionIds) $q->whereIn('v.seccion_id',$seccionIds);
+            if ($seccionIds) $q->whereIn('v.seccion_id', $seccionIds);
 
-            if ($r->filled('estado')) $q->where('v.estado',$r->estado);
+            if ($r->filled('estado')) $q->where('v.estado', $r->estado);
             if ($r->filled('q')) {
                 $q->where(function($w) use ($r){
                     $w->where('v.grupo_nombre','like','%'.$r->q.'%')
@@ -471,7 +471,9 @@ Route::middleware('auth:sanctum')->group(function () {
             return $q->orderByDesc(DB::raw($order))->paginate($perPage)->withQueryString();
         }
 
-        // Fallback sin la vista
+        // Fallback sin la vista (OJO: sin p.nombre)
+        $practExpr = DB::raw("COALESCE(p.titulo, CONCAT('Práctica #', p.id)) AS practica_titulo");
+
         $q = DB::table('solicitudes as s')
             ->leftJoin('practicas as p','p.id','=','s.practica_id')
             ->leftJoin('secciones as sec','sec.id','=','p.seccion_id')
@@ -479,11 +481,11 @@ Route::middleware('auth:sanctum')->group(function () {
             ->leftJoin('laboratorios as l','l.id','=','s.laboratorio_id')
             ->leftJoin('grupos as g','g.id','=','s.grupo_id')
             ->select(
-                's.id', 's.estado', 's.creado_at',
-                DB::raw("COALESCE(p.titulo, p.nombre, CONCAT('Práctica #', p.id)) as practica_titulo"),
+                's.id','s.estado','s.creado_at',
+                $practExpr,
                 'l.nombre as laboratorio_nombre',
                 'g.nombre as grupo_nombre',
-                'sec.id as seccion_id', 'c.codigo as curso_codigo', 'c.nombre as curso_nombre'
+                'sec.id as seccion_id','c.codigo as curso_codigo','c.nombre as curso_nombre'
             );
 
         if ($seccionIds) $q->whereIn('sec.id',$seccionIds);
@@ -492,7 +494,6 @@ Route::middleware('auth:sanctum')->group(function () {
             $q->where(function($w) use ($r){
                 $w->where('g.nombre','like','%'.$r->q.'%')
                 ->orWhere('p.titulo','like','%'.$r->q.'%')
-                ->orWhere('p.nombre','like','%'.$r->q.'%')
                 ->orWhere('l.nombre','like','%'.$r->q.'%');
             });
         }
@@ -501,6 +502,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         $order = Schema::hasColumn('solicitudes','actualizado_at') ? 's.actualizado_at'
                 : (Schema::hasColumn('solicitudes','creado_at') ? 's.creado_at' : 's.id');
+
         return $q->orderByDesc(DB::raw($order))->paginate($perPage)->withQueryString();
     });
 
@@ -509,32 +511,36 @@ Route::middleware('auth:sanctum')->group(function () {
         $u = $r->user();
         $perPage = (int) $r->input('per_page', 12);
 
-        // grupos donde está el alumno
+        // grupos del alumno
         $grupoIds = [];
         if (Schema::hasTable('alumnos_grupo')) {
-            $grupoIds = DB::table('alumnos_grupo')->where('alumno_id',$u->id)->pluck('grupo_id')->all();
+            $grupoIds = DB::table('alumnos_grupo')
+                ->where('alumno_id',$u->id)->pluck('grupo_id')->all();
         }
 
-        // preferir vista si existe
+        // Vista si existe
         if (Schema::hasTable('vw_tablon_laboratorio')) {
             $q = DB::table('vw_tablon_laboratorio as v');
-            if ($grupoIds) $q->whereIn('v.grupo_id',$grupoIds);
-            // además, creadas por el usuario
-            if (Schema::hasColumn('vw_tablon_laboratorio','creado_por')) $q->orWhere('v.creado_por',$u->id);
+            $q->where(function ($w) use ($grupoIds, $u) {
+                if ($grupoIds) $w->whereIn('v.grupo_id', $grupoIds);
+                if (Schema::hasColumn('vw_tablon_laboratorio','creado_por')) $w->orWhere('v.creado_por', $u->id);
+            });
 
             if ($r->filled('estado')) $q->where('v.estado',$r->estado);
             $order = Schema::hasColumn('vw_tablon_laboratorio','actualizado_at') ? 'v.actualizado_at' : 'v.creado_at';
             return $q->orderByDesc(DB::raw($order))->paginate($perPage)->withQueryString();
         }
 
-        // fallback
+        // Fallback (OJO: sin p.nombre)
+        $practExpr = DB::raw("COALESCE(p.titulo, CONCAT('Práctica #', p.id)) AS practica_titulo");
+
         $q = DB::table('solicitudes as s')
             ->leftJoin('practicas as p','p.id','=','s.practica_id')
             ->leftJoin('laboratorios as l','l.id','=','s.laboratorio_id')
             ->leftJoin('grupos as g','g.id','=','s.grupo_id')
             ->select(
                 's.id','s.estado','s.creado_at',
-                DB::raw("COALESCE(p.titulo, p.nombre, CONCAT('Práctica #', p.id)) as practica_titulo"),
+                $practExpr,
                 'l.nombre as laboratorio_nombre','g.nombre as grupo_nombre'
             );
 
@@ -545,12 +551,14 @@ Route::middleware('auth:sanctum')->group(function () {
         });
 
         if ($r->filled('estado')) $q->where('s.estado',$r->estado);
+
         $order = Schema::hasColumn('solicitudes','actualizado_at') ? 's.actualizado_at'
                 : (Schema::hasColumn('solicitudes','creado_at') ? 's.creado_at' : 's.id');
+
         return $q->orderByDesc(DB::raw($order))->paginate($perPage)->withQueryString();
     });
 
-    // ==================== REPORTES: RESUMEN Y CSV ====================
+    // ==================== REPORTES: RESUMEN (para Dashboard de Reportes) ====================
     Route::get('reportes/resumen', function (Request $r) {
         $solPorEstado = Schema::hasTable('solicitudes')
             ? DB::table('solicitudes')->select('estado', DB::raw('COUNT(*) as n'))
@@ -570,21 +578,19 @@ Route::middleware('auth:sanctum')->group(function () {
                 'prestamos'   => (Schema::hasTable('prestamos') ? DB::table('prestamos')->count() : 0),
             ]
         ];
-    });
+    })->name('api.reportes.resumen');
 
-    // CSV simple de solicitudes (filtros opcionales)
+    // ==================== REPORTES: CSV DE SOLICITUDES ====================
     Route::get('reportes/solicitudes-csv', function (Request $r) {
         if (!Schema::hasTable('solicitudes')) abort(404);
+
+        $practExpr = DB::raw("COALESCE(p.titulo, CONCAT('Práctica #', p.id)) AS practica");
 
         $q = DB::table('solicitudes as s')
             ->leftJoin('practicas as p','p.id','=','s.practica_id')
             ->leftJoin('laboratorios as l','l.id','=','s.laboratorio_id')
             ->leftJoin('grupos as g','g.id','=','s.grupo_id')
-            ->select(
-                's.id','s.estado','s.creado_at',
-                DB::raw("COALESCE(p.titulo,p.nombre) as practica"),
-                'l.nombre as laboratorio','g.nombre as grupo'
-            );
+            ->select('s.id','s.estado','s.creado_at', $practExpr, 'l.nombre as laboratorio', 'g.nombre as grupo');
 
         if ($r->filled('estado')) $q->where('s.estado',$r->estado);
         if ($r->filled('desde'))  $q->whereDate('s.creado_at','>=',$r->desde);
@@ -594,23 +600,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
         $csv = "id,estado,creado_at,practica,laboratorio,grupo\n";
         foreach ($rows as $row) {
-            $line = [
+            $csv .= implode(',', [
                 $row->id,
                 $row->estado,
                 $row->creado_at,
                 Str::of($row->practica ?? '')->replace([",","\n"],[" "," "]),
                 Str::of($row->laboratorio ?? '')->replace([",","\n"],[" "," "]),
                 Str::of($row->grupo ?? '')->replace([",","\n"],[" "," "]),
-            ];
-            $csv .= implode(',', $line) . "\n";
+            ]) . "\n";
         }
 
         return response($csv, 200, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Type'        => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="solicitudes.csv"',
         ]);
     });
 
+  
     
 
 });
