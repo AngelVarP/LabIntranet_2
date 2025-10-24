@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 
 // --- Controllers ---
 use App\Http\Controllers\Api\TablonController;
@@ -95,6 +96,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post  ('/categorias-insumo',       [CategoriasInsumoController::class,'store']);   // admin|tecnico
     Route::put   ('/categorias-insumo/{id}',  [CategoriasInsumoController::class,'update']);  // admin|tecnico
     Route::delete('/categorias-insumo/{id}',  [CategoriasInsumoController::class,'destroy']); // admin|tecnico
+    Route::get('solicitudes/mias', [SolicitudesController::class, 'mias']);
+    
+    Route::get('stats/home', function () {
+        $safeCount = fn($table, $col=null, $vals=null) =>
+            DB::connection()->getSchemaBuilder()->hasTable($table)
+                ? ( $col ? DB::table($table)->whereIn($col, (array)$vals)->count()
+                         : DB::table($table)->count() )
+                : 0;
+
+        return [
+            'sol_pendientes'   => $safeCount('solicitudes', 'estado', ['PENDIENTE']),
+            'prestamos_abiertos'=> $safeCount('prestamos', 'estado', ['ABIERTO','PARCIAL']),
+            'insumos'          => $safeCount('insumos'),
+            'equipos'          => $safeCount('equipos'),
+        ];
+    });
+
 
     // ---------------------------------
     // Cursos / Secciones / Grupos
@@ -159,6 +177,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Kardex general
     Route::get('/kardex', [KardexController::class,'index']); // ?tipo_item=&laboratorio_id=&item_id=&desde=&hasta=
+
+    Route::get ('solicitudes',              [SolicitudesController::class, 'index']);     // LISTAR (para Profesor)
+    Route::post('solicitudes',              [SolicitudesController::class, 'store']);     // CREAR
+    Route::get ('solicitudes/{id}',         [SolicitudesController::class, 'show']);      // DETALLE
+    Route::post('solicitudes/{id}/estado',  [SolicitudesController::class, 'cambiarEstado']);
 
     // Alertas
     Route::get('/alertas/caducidad', [AlertasController::class,'caducidad']); // ?dias=30
@@ -272,4 +295,17 @@ Route::middleware('auth:sanctum')->get('/me', function (Request $r) {
         'email' => $u->email,
         'roles' => $roles->values(),
     ];
+});
+Route::middleware('auth:sanctum')->group(function () {
+    // REST básico para Equipos
+    Route::get   ('equipos',          [EquiposController::class, 'index']);
+    Route::post  ('equipos',          [EquiposController::class, 'store']);
+    Route::get   ('equipos/{id}',     [EquiposController::class, 'show']);
+    Route::put   ('equipos/{id}',     [EquiposController::class, 'update']);
+    Route::delete('equipos/{id}',     [EquiposController::class, 'destroy']);
+
+    // Lookup de laboratorios (si aún no lo tenías)
+    Route::get('lookups/laboratorios', function () {
+        return DB::table('laboratorios')->orderBy('nombre')->get(['id','nombre']);
+    });
 });
