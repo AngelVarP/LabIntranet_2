@@ -6,15 +6,15 @@ const user  = computed(() => page.props.auth?.user ?? null)
 const roles = computed(() => user.value?.roles ?? []) // vienen como ['admin','tecnico',...]
 
 const items = [
-  { label: 'Dashboard', to: '/dashboard', roles: ['admin','profesor','tecnico'] },
-  { label: 'Tablón',    to: '/tablon',    roles: ['admin','profesor','tecnico','alumno'] },
-  { label: 'Insumos',   to: '/insumos',   roles: ['admin','tecnico'] },
-  { label: 'Notificaciones', to: '/notificaciones', roles: ['admin','profesor','tecnico','alumno'] },
-  { label: 'Académico', to: '/academico', roles: ['admin','profesor'] },
-  { label: 'Préstamos', to: '/prestamos', roles: ['admin','tecnico'] },
-  { label: 'Reportes', to: '/reportes', roles: ['admin','profesor','tecnico'] },
-
+  { label: 'Dashboard',     to: '/dashboard',      roles: ['admin','profesor','tecnico'] },
+  { label: 'Tablón',        to: '/tablon',         roles: ['admin','profesor','tecnico','alumno'] },
+  { label: 'Insumos',       to: '/insumos',        roles: ['admin','tecnico'] },
+  { label: 'Préstamos',     to: '/prestamos',      roles: ['admin','tecnico'] },
+  { label: 'Académico',     to: '/academico',      roles: ['admin','profesor'] },
+  { label: 'Reportes',      to: '/reportes',       roles: ['admin','profesor','tecnico'] },
+  { label: 'Notificaciones',to: '/notificaciones', roles: ['admin','profesor','tecnico','alumno'] },
 ]
+
 const menu = computed(() => roles.value?.length ? items.filter(i => i.roles.some(r => roles.value.includes(r))) : items)
 const isActive = (to) => page.url.startsWith(to)
 </script>
