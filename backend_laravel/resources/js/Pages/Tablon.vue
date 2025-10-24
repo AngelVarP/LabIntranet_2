@@ -1,7 +1,11 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 import AppShell from '@/Layouts/AppShell.vue'
+
+// que todas las peticiones incluyan cookies (Sanctum stateful)
+axios.defaults.withCredentials = true
 
 // -------------------- estado base --------------------
 const loading = ref(false)
@@ -18,43 +22,40 @@ const filtros = reactive({
   curso_id: '',
 })
 
-// Lookups (solo usamos los que el back ya soporta: laboratorio y curso)
+// Lookups
 const labs = ref([])
 const cursos = ref([])
 
-// roles para habilitar acciones
+// -------------------- roles/permiso --------------------
+const pageInertia = usePage()
 const roles = computed(() => {
-  // Inertia suele inyectar esto en $page.props.auth.user.roles
-  const r = (globalThis?.$page?.props?.auth?.user?.roles) ?? []
-  // puede venir como [{name:'admin'}] o ['admin']
-  return Array.isArray(r) ? r.map(x => (x?.name ?? x)) : []
+  const r = pageInertia.props?.auth?.user?.roles ?? []
+  return Array.isArray(r) ? r.map(x => x?.name ?? x) : []
 })
 const puedeCambiarEstado = computed(() =>
   roles.value.includes('admin') || roles.value.includes('tecnico')
 )
 
-// -------------------- carga de lookups --------------------
-async function loadLookups() {
+// -------------------- lookups --------------------
+async function loadLookups () {
   try {
     const [l, c] = await Promise.all([
-      axios.get('/api/lookups/laboratorios', { withCredentials: true }),
-      axios.get('/api/lookups/cursos',       { withCredentials: true }),
+      axios.get('/api/lookups/laboratorios'),
+      axios.get('/api/lookups/cursos'),
     ])
     labs.value = l.data || []
     cursos.value = c.data || []
   } catch (e) {
-    // si fallan los lookups, seguimos igual; no rompe el tablón
     console.warn('Lookups error', e?.response?.data || e.message)
   }
 }
 
 // -------------------- fetch de tablón --------------------
-async function fetchTablon() {
+async function fetchTablon () {
   loading.value = true; error.value = null
   try {
-    await axios.get('/sanctum/csrf-cookie', { withCredentials: true })
+    await axios.get('/sanctum/csrf-cookie')
     const { data } = await axios.get('/api/tablon', {
-      withCredentials: true,
       params: {
         q: filtros.q || undefined,
         estado: filtros.estado || undefined,
@@ -75,13 +76,13 @@ async function fetchTablon() {
   }
 }
 
-function resetAndFetch() {
+function resetAndFetch () {
   page.value = 1
   fetchTablon()
 }
 
 // -------------------- helpers UI --------------------
-function badgeClass(est) {
+function badgeClass (est) {
   const map = {
     BORRADOR:  'bg-slate-200 text-slate-700',
     PENDIENTE: 'bg-amber-100 text-amber-800',
@@ -95,8 +96,8 @@ function badgeClass(est) {
 }
 
 // -------------------- cambio de estado inline --------------------
-const cambiando = reactive({}) // por id
-async function onEstadoChange(row, nuevo) {
+const cambiando = reactive({})
+async function onEstadoChange (row, nuevo) {
   if (!puedeCambiarEstado.value) return
   if (nuevo === row.estado) return
   const prev = row.estado
@@ -117,7 +118,7 @@ const showDetalle = ref(false)
 const detLoading = ref(false)
 const detalle = ref(null)
 
-async function abrirDetalle(row) {
+async function abrirDetalle (row) {
   detalle.value = {
     solicitud_id: row.solicitud_id,
     curso: row.curso_nombre,
@@ -132,18 +133,16 @@ async function abrirDetalle(row) {
   showDetalle.value = true
   detLoading.value = true
   try {
-    const { data } = await axios.get(`/api/solicitudes/${row.solicitud_id}`, { withCredentials: true })
-    // si tu endpoint devuelve {solicitud, items}, úsalo;
-    // si no, dejamos lo básico que ya mostramos.
+    const { data } = await axios.get(`/api/solicitudes/${row.solicitud_id}`)
     if (data?.items) detalle.value.items = data.items
   } catch (e) {
-    console.warn('Detalle minimal (sin items):', e?.response?.data || e.message)
+    console.warn('Detalle minimal:', e?.response?.data || e.message)
   } finally {
     detLoading.value = false
   }
 }
 
-function cerrarDetalle() {
+function cerrarDetalle () {
   showDetalle.value = false
   detalle.value = null
 }
